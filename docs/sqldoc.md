@@ -502,3 +502,10 @@ CREATE TABLE IF NOT EXISTS `password_reset_tokens` (
   `created_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+ALTER TABLE `carts`
+ADD `service_details` TEXT NULL DEFAULT NULL COMMENT 'JSON encoded service details like date, time, location' AFTER `quantity`;
+
+ALTER TABLE `order_items`
+ADD `service_details` TEXT NULL DEFAULT NULL COMMENT 'JSON encoded service details' AFTER `quantity`;

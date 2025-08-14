@@ -48,23 +48,46 @@ class CartController extends Controller
     public function add(Request $request, $id)
     {
         $quantity = $request->input('quantity', 1);
+        
+        // Check for service details and encode them into JSON
+        $serviceDetails = $request->input('service_details', null);
+        $serviceDetailsJson = $serviceDetails ? json_encode($serviceDetails) : null;
 
         if (Auth::check()) {
-            $existing = DB::selectOne('SELECT * FROM carts WHERE user_id = ? AND item_id = ?', [Auth::id(), $id]);
-            if ($existing) {
-                DB::update('UPDATE carts SET quantity = quantity + ? WHERE id = ?', [$quantity, $existing->id]);
+            // Logged-in user: add to the database
+            $existingCartItem = DB::selectOne('SELECT * FROM carts WHERE user_id = ? AND item_id = ?', [Auth::id(), $id]);
+
+            if ($existingCartItem) {
+                // If the item already exists, just increase the quantity.
+                // A more complex app might handle merging service details differently.
+                DB::update('UPDATE carts SET quantity = quantity + ? WHERE id = ?', [$quantity, $existingCartItem->id]);
             } else {
-                DB::insert('INSERT INTO carts (user_id, item_id, quantity) VALUES (?, ?, ?)', [Auth::id(), $id, $quantity]);
+                // Insert a new cart item with service details
+                DB::insert(
+                    'INSERT INTO carts (user_id, item_id, quantity, service_details) VALUES (?, ?, ?, ?)',
+                    [Auth::id(), $id, $quantity, $serviceDetailsJson]
+                );
             }
         } else {
+            // Guest user: add to the session
             $cart = Session::get('cart', []);
             if (isset($cart[$id])) {
                 $cart[$id]['quantity'] += $quantity;
             } else {
-                $cart[$id] = ["quantity" => $quantity];
+                $cart[$id] = [
+                    "quantity" => $quantity,
+                    "service_details" => $serviceDetails // Store as an array in the session
+                ];
             }
             Session::put('cart', $cart);
         }
+
+        // If the request was made via AJAX (from the service modal), return a JSON response
+        if ($request->ajax()) {
+            return response()->json(['success' => 'Service added to cart successfully!']);
+        }
+
+        // For regular form submissions (like for products), redirect back
         return redirect()->back()->with('success', 'Item added to cart!');
     }
 

@@ -21,12 +21,26 @@ class CheckoutController extends Controller
 
     public function index()
     {
-        $cartItems = DB::select("SELECT c.item_id as id, i.name, i.base_price, c.quantity FROM carts c JOIN items i ON c.item_id = i.id WHERE c.user_id = ?", [Auth::id()]);
+        // Fetch cart items along with their type and service details
+        $cartItems = DB::select("
+            SELECT c.item_id as id, i.name, i.base_price, i.item_type, c.quantity, c.service_details 
+            FROM carts c 
+            JOIN items i ON c.item_id = i.id 
+            WHERE c.user_id = ?
+        ", [Auth::id()]);
 
         if (count($cartItems) === 0) {
-            return redirect()->route('home')->with('error', 'Your cart is empty. Please add items before checking out.');
+            return redirect()->route('home')->with('error', 'Your cart is empty.');
         }
 
+        // Decode JSON service details for display
+        foreach($cartItems as $item) {
+            if($item->service_details) {
+                $item->service_details = json_decode($item->service_details, true);
+            }
+        }
+
+        // Calculate the summary
         $summary = [];
         $summary['subtotal'] = 0;
         foreach ($cartItems as $item) {
@@ -37,9 +51,7 @@ class CheckoutController extends Controller
         $summary['tax'] = $summary['subtotal'] * $taxRate;
         $summary['total'] = $summary['subtotal'] + $summary['tax'];
 
-        return view('frontend.checkout.index', compact('summary'));
-
-        return view('frontend.checkout.index', compact('totalAmount'));
+        return view('frontend.checkout.index', compact('summary', 'cartItems'));
     }
 
     /**
@@ -58,7 +70,12 @@ class CheckoutController extends Controller
         ]);
 
         // **FIX**: Fetch cart items from the database for the authenticated user
-        $cartItems = DB::select("SELECT c.item_id, i.name, i.base_price, c.quantity FROM carts c JOIN items i ON c.item_id = i.id WHERE c.user_id = ?", [Auth::id()]);
+        $cartItems = DB::select("
+            SELECT c.item_id, i.name, i.base_price, c.quantity, c.service_details 
+            FROM carts c 
+            JOIN items i ON c.item_id = i.id 
+            WHERE c.user_id = ?
+        ", [Auth::id()]);
 
         if (count($cartItems) === 0) {
             return redirect()->route('home')->with('error', 'Your cart is empty.');
@@ -100,7 +117,7 @@ class CheckoutController extends Controller
                 'updated_at' => now(),
             ]);
 
-            // Insert into order_items table
+
             $orderItemsData = [];
             foreach ($cartItems as $item) {
                 $orderItemsData[] = [
@@ -109,14 +126,13 @@ class CheckoutController extends Controller
                     'item_name' => $item->name,
                     'price' => $item->base_price,
                     'quantity' => $item->quantity,
+                    'service_details' => $item->service_details // Persist the JSON details to the order
                 ];
             }
             DB::table('order_items')->insert($orderItemsData);
-
-            // **FIX**: Clear the user's cart from the database
             DB::table('carts')->where('user_id', Auth::id())->delete();
+            DB::commit();
 
-            DB::commit(); // All good, commit the transaction
 
             return redirect()->route('checkout.success');
 
