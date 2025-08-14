@@ -46,18 +46,39 @@
                                 </div>
 
                                 <div class="mt-6 md:mt-8 flex-1 flex items-end justify-between">
-                                    <form action="{{ route('cart.update', $item->id) }}" method="POST" class="flex items-center space-x-4">
+                                    <!-- Quantity form with - / + buttons -->
+                                    <form action="{{ route('cart.update', $item->id) }}" method="POST" class="flex items-center space-x-4" id="qty-form-{{ $item->id }}">
                                         @csrf
                                         <label for="quantity-{{$item->id}}" class="text-base font-medium text-gray-700">Qty:</label>
-                                        <input
-                                            type="number"
-                                            id="quantity-{{$item->id}}"
-                                            name="quantity"
-                                            value="{{ $item->quantity }}"
-                                            class="w-24 px-4 py-3 text-base border border-gray-300/60 rounded-lg shadow-sm focus:ring-2 focus:ring-gray-500/20 focus:border-gray-500/60 transition-all duration-200 bg-white/80"
-                                            min="1"
-                                            onchange="this.form.submit()"
-                                        >
+                                        <div class="inline-flex items-stretch rounded-lg shadow-sm">
+                                            <button 
+                                                type="button"
+                                                class="px-3 md:px-4 py-3 text-gray-600 hover:text-gray-900 bg-white/80 border border-gray-300/60 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-gray-500/20"
+                                                data-action="decrement"
+                                                data-target="quantity-{{$item->id}}"
+                                                aria-label="Decrease quantity"
+                                            >
+                                                <i class="fas fa-minus text-sm"></i>
+                                            </button>
+                                            <input
+                                                type="number"
+                                                id="quantity-{{$item->id}}"
+                                                name="quantity"
+                                                value="{{ $item->quantity }}"
+                                                class="w-20 md:w-24 text-center px-3 py-3 text-base border-t border-b border-gray-300/60 bg-white/80 focus:ring-2 focus:ring-gray-500/20 focus:border-gray-500/60"
+                                                min="1"
+                                                onchange="this.form.submit()"
+                                            >
+                                            <button 
+                                                type="button"
+                                                class="px-3 md:px-4 py-3 text-gray-600 hover:text-gray-900 bg-white/80 border border-gray-300/60 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-gray-500/20"
+                                                data-action="increment"
+                                                data-target="quantity-{{$item->id}}"
+                                                aria-label="Increase quantity"
+                                            >
+                                                <i class="fas fa-plus text-sm"></i>
+                                            </button>
+                                        </div>
                                     </form>
 
                                     <div class="ml-6">
@@ -155,4 +176,33 @@
         </div>
     </div>
 </div>
+
+<!-- Inline script to handle +/- quantity -->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('button[data-action]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        const targetId = this.getAttribute('data-target');
+        const action = this.getAttribute('data-action');
+        const input = document.getElementById(targetId);
+        if (!input) return;
+
+        const min = parseInt(input.getAttribute('min') || '1', 10);
+        const current = parseInt(input.value || '1', 10);
+
+        let next = current;
+        if (action === 'increment') next = current + 1;
+        if (action === 'decrement') next = Math.max(min, current - 1);
+
+        if (next !== current) {
+          input.value = next;
+
+          // Submit the associated form
+          const form = input.closest('form');
+          if (form) form.submit();
+        }
+      });
+    });
+  });
+</script>
 @endsection
