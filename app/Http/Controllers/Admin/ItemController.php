@@ -1,10 +1,12 @@
 <?php
+// app/Http/Controllers/Admin/ItemController.php (UPDATED)
 
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class ItemController extends Controller
@@ -27,9 +29,9 @@ class ItemController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
-            'item_type' => 'required|in:PRODUCT,SERVICE',
             'base_price' => 'required|numeric|min:0',
             'description' => 'required|string',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif,svg|max:2048' // Validate images
         ]);
 
         DB::beginTransaction();
@@ -44,36 +46,19 @@ class ItemController extends Controller
                 'item_type' => $request->item_type,
                 'is_featured' => $request->has('is_featured') ? 1 : 0,
                 'is_active' => $request->has('is_active') ? 1 : 0,
-                'created_at' => now(),
-                'updated_at' => now(),
+                'created_at' => now(), 'updated_at' => now(),
             ]);
 
-            // Handle primary image
-            if ($request->filled('primary_image')) {
-                DB::table('item_images')->insert([
-                    'item_id' => $itemId,
-                    'image_url' => $request->primary_image,
-                    'is_primary' => 1,
-                ]);
-            }
-            
-            // Handle attributes
-            if ($request->has('attributes')) {
-                $itemAttributes = [];
-                foreach($request->attributes as $attributeId => $value) {
-                    if (!empty($value)) {
-                        $itemAttributes[] = [
-                            'item_id' => $itemId,
-                            'attribute_id' => $attributeId,
-                            'value' => $value,
-                        ];
-                    }
-                }
-                if (!empty($itemAttributes)) {
-                    DB::table('item_attributes')->insert($itemAttributes);
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $key => $image) {
+                    $path = $image->store('public/items');
+                    DB::table('item_images')->insert([
+                        'item_id' => $itemId,
+                        'image_url' => Storage::url($path),
+                        'is_primary' => $key == 0 ? 1 : 0, // Make the first uploaded image primary
+                    ]);
                 }
             }
-
             DB::commit();
             return redirect()->route('admin.items.index')->with('success', 'Item created successfully.');
         } catch (\Exception $e) {
@@ -89,7 +74,7 @@ class ItemController extends Controller
 
         $categories = DB::select('SELECT * FROM categories ORDER BY name ASC');
         $attributes = DB::select('SELECT * FROM attributes ORDER BY name ASC');
-        $item->primary_image = DB::selectOne('SELECT image_url FROM item_images WHERE item_id = ? AND is_primary = 1', [$id]);
+        $item->images = DB::select('SELECT * FROM item_images WHERE item_id = ?', [$id]);
         
         $itemAttributesRaw = DB::select('SELECT attribute_id, value FROM item_attributes WHERE item_id = ?', [$id]);
         $item->attributes = array_column($itemAttributesRaw, 'value', 'attribute_id');
@@ -99,24 +84,55 @@ class ItemController extends Controller
 
     public function update(Request $request, $id)
     {
-        // Similar logic to store(), but using UPDATE statements.
-        // This is left as an exercise for the developer to complete.
-        // For brevity, we are redirecting back.
-        return redirect()->route('admin.items.index')->with('info', 'Update functionality to be implemented.');
-    }
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,id',
+            'base_price' => 'required|numeric|min:0',
+            'description' => 'required|string',
+            'images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+        ]);
 
-    public function destroy($id)
-    {
-        // Use a transaction to ensure item and its related data are deleted together.
         DB::beginTransaction();
         try {
-            DB::delete('DELETE FROM items WHERE id = ?', [$id]);
-            // Related data in item_images, item_attributes will be deleted by CASCADE constraint.
+            DB::table('items')->where('id', $id)->update([
+                'name' => $request->name,
+                'description' => $request->description,
+                'short_description' => $request->short_description,
+                'base_price' => $request->base_price,
+                'category_id' => $request->category_id,
+                'item_type' => $request->item_type,
+                'is_featured' => $request->has('is_featured') ? 1 : 0,
+                'is_active' => $request->has('is_active') ? 1 : 0,
+                'updated_at' => now(),
+            ]);
+
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $image) {
+                    $path = $image->store('public/items');
+                    DB::table('item_images')->insert([
+                        'item_id' => $id,
+                        'image_url' => Storage::url($path),
+                    ]);
+                }
+            }
             DB::commit();
-            return back()->with('success', 'Item deleted successfully.');
+            return redirect()->route('admin.items.edit', $id)->with('success', 'Item updated successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Error deleting item: ' . $e->getMessage());
+            return back()->with('error', 'Error updating item: ' . $e->getMessage())->withInput();
         }
+    }
+
+    public function destroyImage($imageId)
+    {
+        $image = DB::selectOne('SELECT * FROM item_images WHERE id = ?', [$imageId]);
+        if ($image) {
+            // Convert URL back to storage path
+            $path = str_replace('/storage', 'public', $image->image_url);
+            Storage::delete($path);
+            DB::delete('DELETE FROM item_images WHERE id = ?', [$imageId]);
+            return response()->json(['success' => 'Image deleted successfully.']);
+        }
+        return response()->json(['error' => 'Image not found.'], 404);
     }
 }

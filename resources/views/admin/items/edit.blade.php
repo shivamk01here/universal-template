@@ -2,7 +2,7 @@
 @section('title', 'Edit Item')
 @section('content')
 <div class="bg-white p-8 rounded-lg shadow-md">
-    <form action="{{ route('admin.items.update', $item->id) }}" method="POST">
+    <form action="{{ route('admin.items.update', $item->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @include('admin.items._form', ['item' => $item])
          <div class="mt-8">

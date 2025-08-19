@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\FaqController as AdminFaqController;
 use App\Http\Controllers\Frontend\AccountController;
 use App\Http\Controllers\Admin\TestimonialController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Admin\HomepageSectionController;   
 
 
 /*
@@ -36,6 +37,9 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 
 // Homepage
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/error', function() {
+    return back()->with('error', 'This is a test error message');
+});
 
 // Item/Product/Service Listing and Detail Pages
 Route::get('/items', [ItemController::class, 'index'])->name('items.index');
@@ -110,8 +114,6 @@ Route::post('/items/{itemId}/reviews', [ItemController::class, 'storeReview'])->
 // Newsletter Subscription
 Route::post('/newsletter-subscribe', [HomeController::class, 'subscribeNewsletter'])->name('newsletter.subscribe');
 
-// Update the category route to be more flexible
-Route::get('/category/{slug}', [ItemController::class, 'index'])->name('items.category');
 
 Route::middleware(['auth'])->prefix('my-account')->name('account.')->group(function () {
     Route::get('/orders', [AccountController::class, 'orderHistory'])->name('orders');
@@ -120,6 +122,7 @@ Route::middleware(['auth'])->prefix('my-account')->name('account.')->group(funct
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('static-pages', StaticPageController::class)->except(['show']);
 });
+
 
 // Frontend Static Page Display
 Route::get('/p/{slug}', [PageController::class, 'show'])->name('page.show');
@@ -142,6 +145,19 @@ Route::get('/faq', [FaqController::class, 'index'])->name('faq.index');
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('blogs', AdminBlogController::class)->except(['show']);
     Route::resource('faqs', AdminFaqController::class)->except(['show']);
+    Route::delete('/items/image/{imageId}', [AdminItemController::class, 'destroyImage'])->name('items.image.destroy');
+    Route::resource('categories', App\Http\Controllers\Admin\CategoryController::class);
+
+
+     // These routes handle the admin functionality for managing homepage sections.
+     Route::get('/pages', [HomepageSectionController::class, 'index'])->name('pages.index');
+     Route::get('/pages/create', [HomepageSectionController::class, 'create'])->name('pages.create');
+     Route::post('/pages', [HomepageSectionController::class, 'store'])->name('pages.store');
+     Route::get('/pages/{id}/edit', [HomepageSectionController::class, 'edit'])->name('pages.edit');
+     Route::post('/pages/update/{id}', [HomepageSectionController::class, 'update'])->name('pages.update'); // Note: Should ideally be PUT/PATCH
+     Route::delete('/pages/{id}', [HomepageSectionController::class, 'destroy'])->name('pages.destroy');
+ 
+ 
 });
 
 

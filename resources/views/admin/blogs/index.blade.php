@@ -9,6 +9,7 @@
     <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
             <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Image</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                 <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
@@ -17,6 +18,11 @@
         <tbody class="bg-white divide-y divide-gray-200">
             @foreach($blogs as $blog)
             <tr>
+            <td class="px-6 py-4 whitespace-nowrap">
+                @if($blog->image)
+                    <img src="{{ asset('storage/blogs/' . $blog->image) }}" style="max-width:70px; max-height:45px; border-radius:6px;" />
+                @endif
+            </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $blog->title }}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
                     @if($blog->is_published)

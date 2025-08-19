@@ -30,12 +30,32 @@ class AdminController extends Controller
         return view('admin.settings', compact('settings'));
     }
 
-    public function updateSettings(Request $request)
-    {
+    public function updateSettings(Request $request) {
         $settings = $request->except('_token');
-        foreach ($settings as $key => $value) {
-            DB::update('UPDATE site_settings SET value = ? WHERE `key` = ?', [$value, $key]);
+    
+        if ($request->hasFile('site_logo_url')) {
+            $file = $request->file('site_logo_url');
+            $filename = uniqid('logo_') . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path(), $filename);  // stores directly at public/
+            $settings['site_logo_url'] = $filename;
+        } else {
+            unset($settings['site_logo_url']);
         }
+    
+        foreach ($settings as $key => $value) {
+            DB::table('site_settings')->updateOrInsert(
+                ['key' => $key],
+                ['value' => $value]
+            );
+        }
+        // Double-confirm image saved in DB if fresh upload
+        if ($request->hasFile('site_logo_url')) {
+            DB::table('site_settings')->updateOrInsert(
+                ['key' => 'site_logo_url'],
+                ['value' => $filename]
+            );
+        }
+    
         return back()->with('success', 'Settings updated successfully!');
     }
     

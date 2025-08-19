@@ -9,12 +9,12 @@
 
     <!-- Featured Services Section -->
     @if(isset($featuredServices) && count($featuredServices) > 0)
-    <div class="py-20 bg-gradient-to-br from-slate-50 to-blue-50/30">
+    <div class="py-20 theme-bg-secondary">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold text-slate-900 tracking-tight">Featured Services</h2>
-                <p class="mt-4 text-xl text-slate-600 max-w-2xl mx-auto">Discover our premium services crafted for excellence</p>
-                <div class="w-24 h-1 bg-gradient-to-r from-slate-600 to-slate-800 mx-auto mt-6 rounded-full"></div>
+                <h2 class="text-4xl font-bold theme-text-primary tracking-tight">Featured Services</h2>
+                <p class="mt-4 text-xl theme-text-muted max-w-2xl mx-auto">Discover our premium services crafted for excellence</p>
+                <div class="w-24 h-1 bg-primary-dynamic mx-auto mt-6 rounded-full"></div>
             </div>
             <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 @foreach($featuredServices as $item)
@@ -27,13 +27,13 @@
 
     <!-- Featured Products Section -->
     @if(isset($featuredProducts) && count($featuredProducts) > 0)
-    <div class="py-20 bg-white relative overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-slate-50/30 to-transparent"></div>
+    <div class="py-20 theme-bg-primary relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-black/5 to-transparent dark:via-white/5"></div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
             <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold text-slate-900 tracking-tight">Featured Products</h2>
-                <p class="mt-4 text-xl text-slate-600 max-w-2xl mx-auto">Handpicked products that define quality and innovation</p>
-                <div class="w-24 h-1 bg-gradient-to-r from-slate-600 to-slate-800 mx-auto mt-6 rounded-full"></div>
+                <h2 class="text-4xl font-bold theme-text-primary tracking-tight">Featured Products</h2>
+                <p class="mt-4 text-xl theme-text-muted max-w-2xl mx-auto">Handpicked products that define quality and innovation</p>
+                <div class="w-24 h-1 bg-primary-dynamic mx-auto mt-6 rounded-full"></div>
             </div>
             <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 @foreach($featuredProducts as $item)
@@ -60,27 +60,30 @@
 
     <!-- FAQ Section -->
     @if(isset($faqs) && count($faqs) > 0)
-    <div class="py-20 bg-gradient-to-br from-slate-50 to-slate-100/50">
+    <div class="py-20 theme-bg-tertiary">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="max-w-4xl mx-auto">
                 <div class="text-center mb-16">
-                    <h2 class="text-4xl font-bold text-slate-900 tracking-tight">Frequently Asked Questions</h2>
-                    <p class="mt-4 text-xl text-slate-600">Everything you need to know about our services</p>
-                    <div class="w-24 h-1 bg-gradient-to-r from-slate-600 to-slate-800 mx-auto mt-6 rounded-full"></div>
+                    <h2 class="text-4xl font-bold theme-text-primary tracking-tight">Frequently Asked Questions</h2>
+                    <p class="mt-4 text-xl theme-text-muted">Everything you need to know about our services</p>
+                    <div class="w-24 h-1 bg-primary-dynamic mx-auto mt-6 rounded-full"></div>
                 </div>
                 
-                <div class="space-y-4">
+                <div class="space-y-5">
                     @foreach($faqs as $faq)
                     <div x-data="{ open: false }" 
-                        class="group bg-white/70 backdrop-blur-sm border border-white/20 rounded-2xl shadow-sm hover:shadow-xl hover:shadow-slate-200/20 transition-all duration-300 hover:border-slate-200/50">
+                        class="group theme-bg-primary theme-border border rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 w-full">
                         <button 
                             @click="open = !open" 
-                            class="w-full flex justify-between items-center px-6 py-5 text-left focus:outline-none focus:ring-2 focus:ring-slate-500/20 rounded-2xl"
+                            :aria-expanded="open ? 'true' : 'false'"
+                            class="w-full flex justify-between items-center px-6 py-5 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-dynamic/20 rounded-2xl"
                         >
-                            <span class="text-lg font-semibold text-slate-900 group-hover:text-slate-700 transition-colors">{{ $faq->question }}</span>
+                            <span class="text-lg font-semibold theme-text-primary group-hover:text-primary-dynamic transition-colors">
+                                {{ $faq->question }}
+                            </span>
                             <div class="flex-shrink-0 ml-4">
-                                <div class="w-8 h-8 bg-gradient-to-r from-slate-600 to-slate-800 rounded-full flex items-center justify-center transform transition-all duration-200 group-hover:scale-110" 
-                                    :class="{ 'rotate-180': open }">
+                                <div :class="{ 'rotate-180': open }"
+                                    class="w-8 h-8 bg-primary-dynamic rounded-full flex items-center justify-center transform transition-all duration-200 group-hover:scale-110">
                                     <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
                                     </svg>
@@ -89,16 +92,16 @@
                         </button>
                         <div 
                             x-show="open" 
-                            x-transition:enter="transition ease-out duration-300" 
-                            x-transition:enter-start="opacity-0 max-h-0" 
+                            x-transition:enter="transition ease-out duration-300"
+                            x-transition:enter-start="opacity-0 max-h-0"
                             x-transition:enter-end="opacity-100 max-h-96"
-                            x-transition:leave="transition ease-in duration-200" 
-                            x-transition:leave-start="opacity-100 max-h-96" 
+                            x-transition:leave="transition ease-in duration-200"
+                            x-transition:leave-start="opacity-100 max-h-96"
                             x-transition:leave-end="opacity-0 max-h-0"
                             x-cloak
                             class="overflow-hidden"
                         >
-                            <div class="px-6 pb-6 text-slate-700 leading-relaxed border-t border-slate-100/50 pt-4">
+                            <div class="px-6 pb-6 theme-text-secondary leading-relaxed theme-border-light border-t pt-4">
                                 {!! $faq->answer !!}
                             </div>
                         </div>
@@ -108,7 +111,7 @@
                 
                 <div class="text-center mt-12">
                     <a href="{{ route('faq.index') }}" 
-                       class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-slate-600 to-slate-800 text-white font-semibold rounded-xl hover:from-slate-700 hover:to-slate-900 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl">
+                       class="inline-flex items-center px-6 py-3 bg-button-dynamic text-white font-semibold rounded-xl hover:opacity-90 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl group">
                         <span>View All FAQs</span>
                         <svg class="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -118,21 +121,27 @@
             </div>
         </div>
     </div>
-    @endif
+    <!-- Alpine.js for toggle, include only once if not already loaded -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <style>
+    [x-cloak] { display: none !important; }
+    </style>
+@endif
+
 
     <!-- Enhanced Newsletter Section -->
-    <div class="py-20 bg-gradient-to-br from-slate-800 via-slate-900 to-slate-800 relative overflow-hidden">
+    <div class="py-20 bg-gradient-to-br from-gray-800 via-gray-900 to-gray-800 dark:from-gray-950 dark:via-black dark:to-gray-950 relative overflow-hidden">
         <!-- Background Pattern -->
-        <div class="absolute inset-0 bg-grid-slate-700/25 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))]"></div>
+        <div class="absolute inset-0 bg-grid-white/10 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))]"></div>
         
         <!-- Decorative Elements -->
-        <div class="absolute top-10 left-10 w-32 h-32 bg-slate-700/20 rounded-full blur-3xl"></div>
-        <div class="absolute bottom-10 right-10 w-40 h-40 bg-slate-600/20 rounded-full blur-3xl"></div>
+        <div class="absolute top-10 left-10 w-32 h-32 bg-white/10 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-10 right-10 w-40 h-40 bg-white/5 rounded-full blur-3xl"></div>
         
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative">
             <div class="text-center">
                 <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4">Stay Updated</h2>
-                <p class="text-xl text-slate-300 mb-8 max-w-2xl mx-auto">
+                <p class="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
                     Get the latest updates on services, exclusive offers, and expert tips delivered to your inbox.
                 </p>
                 
@@ -141,21 +150,21 @@
                         <div class="flex-1">
                             <input type="email" 
                                    placeholder="Enter your email" 
-                                   class="w-full px-6 py-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl text-white placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent transition-all duration-200">
+                                   class="w-full px-6 py-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-transparent transition-all duration-200">
                         </div>
                         <button type="submit" 
-                                class="px-8 py-4 bg-white text-slate-900 font-semibold rounded-2xl hover:bg-slate-100 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl whitespace-nowrap">
+                                class="px-8 py-4 bg-white text-gray-900 font-semibold rounded-2xl hover:bg-gray-100 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl whitespace-nowrap">
                             Subscribe
                         </button>
                     </form>
                     
-                    <p class="text-sm text-slate-400 mt-4">
+                    <p class="text-sm text-gray-400 mt-4">
                         No spam, unsubscribe anytime. We respect your privacy.
                     </p>
                 </div>
                 
                 <!-- Trust indicators -->
-                <div class="mt-12 flex justify-center items-center space-x-8 text-slate-400">
+                <div class="mt-12 flex flex-wrap justify-center items-center gap-6 text-gray-400">
                     <div class="flex items-center space-x-2">
                         <svg class="w-5 h-5 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
@@ -189,7 +198,7 @@
 .backdrop-blur-sm { backdrop-filter: blur(4px); }
 
 /* Grid pattern for newsletter */
-.bg-grid-slate-700\/25 {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(71 85 105 / 0.15)'%3e%3cpath d='m0 .5 32 0M.5 0v32'/%3e%3c/svg%3e");
+.bg-grid-white\/10 {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(255 255 255 / 0.1)'%3e%3cpath d='m0 .5 32 0M.5 0v32'/%3e%3c/svg%3e");
 }
 </style>

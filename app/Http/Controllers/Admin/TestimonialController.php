@@ -1,11 +1,10 @@
 <?php
-// app/Http/Controllers/Admin/TestimonialController.php (NEW FILE)
-
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class TestimonialController extends Controller
 {
@@ -24,11 +23,28 @@ class TestimonialController extends Controller
     {
         $request->validate([
             'customer_name' => 'required|string|max:255',
-            'rating' => 'required|integer|min:1|max:5',
+            'location' => 'nullable|string|max:255',
             'quote' => 'required|string',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'rating' => 'required|integer|min:1|max:5',
         ]);
-        DB::table('testimonials')->insert($request->except('_token'));
-        return redirect()->route('admin.testimonials.index')->with('success', 'Testimonial added successfully.');
+        $image_url = null;
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $filename = Str::random(20).'_'.time().'.'.$file->getClientOriginalExtension();
+            $file->move(public_path('storage/testimonials'), $filename);
+            $image_url = $filename;
+        }
+        DB::table('testimonials')->insert([
+            'customer_name' => $request->customer_name,
+            'location' => $request->location,
+            'quote' => $request->quote,
+            'image_url' => $image_url,
+            'rating' => $request->rating,
+            'is_active' => $request->has('is_active') ? 1 : 0,
+            'created_at' => now(),
+        ]);
+        return redirect()->route('admin.testimonials.index')->with('success', 'Testimonial created!');
     }
 
     public function edit($id)
@@ -41,11 +57,34 @@ class TestimonialController extends Controller
     {
         $request->validate([
             'customer_name' => 'required|string|max:255',
-            'rating' => 'required|integer|min:1|max:5',
+            'location' => 'nullable|string|max:255',
             'quote' => 'required|string',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'rating' => 'required|integer|min:1|max:5',
         ]);
-        DB::table('testimonials')->where('id', $id)->update($request->except(['_token', '_method']));
-        return redirect()->route('admin.testimonials.index')->with('success', 'Testimonial updated successfully.');
+        $testimonial = DB::table('testimonials')->where('id', $id)->first();
+        $image_url = $testimonial->image_url;
+        if ($request->hasFile('image')) {
+            // Optionally delete old image
+            if ($image_url && file_exists(public_path('storage/testimonials/'.$image_url))) {
+                @unlink(public_path('storage/testimonials/'.$image_url));
+            }
+            $file = $request->file('image');
+            $filename = Str::random(20).'_'.time().'.'.$file->getClientOriginalExtension();
+            $file->move(public_path('storage/testimonials'), $filename);
+            $image_url = $filename;
+        }
+        DB::table('testimonials')
+            ->where('id', $id)
+            ->update([
+                'customer_name' => $request->customer_name,
+                'location' => $request->location,
+                'quote' => $request->quote,
+                'image_url' => $image_url,
+                'rating' => $request->rating,
+                'is_active' => $request->has('is_active') ? 1 : 0,
+            ]);
+        return redirect()->route('admin.testimonials.index')->with('success', 'Testimonial updated!');
     }
 
     public function destroy($id)

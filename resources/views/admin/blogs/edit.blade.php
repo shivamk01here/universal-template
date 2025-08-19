@@ -2,7 +2,7 @@
 @section('title', 'Edit Blog Post')
 @section('content')
 <div class="bg-white p-8 rounded-lg shadow-md">
-    <form action="{{ route('admin.blogs.update', $blog->id) }}" method="POST">
+    <form action="{{ route('admin.blogs.update', $blog->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
         @include('admin.blogs._form', ['blog' => $blog])

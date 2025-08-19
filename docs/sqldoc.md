@@ -98,6 +98,32 @@ CREATE TABLE `site_settings` (
     UNIQUE KEY `site_settings_key_unique` (`key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+
+
+--example of site setting 
+''site_name	Bhagyavidhan
+site_logo_url	logo_68a31c115e203_1755520017.jpg
+contact_emailsupport@bhagyavidhan.com
+contact_phone	+91 98765 43210
+footer_about_us	Bhagyavidhan is your one-stop solution for all home and personal care needs. We connect you with trusted professionals to make your life easier.
+footer_copyright	© 2025 Bhagyavidhan. All Rights Reserved.
+company_address	123 Service Street, Gurugram, Haryana 122001
+support_hours	Monday to Sunday: 8:00 AM - 10:00 PM
+social_facebook	https://facebook.com/bhagyavidhan
+social_instagram	https://instagram.com/bhagyavidhan
+social_twitter	https://twitter.com/bhagyavidhan
+whatsapp_number	+91 98765 43210
+primary_color	#3485fd
+primary_color_code	#3485fd
+secondary_color	#13c7a7
+secondary_color_code	#13c7a7
+button_color	#5971f6
+button_color_code	#5971f6
+background_color	#ffffff
+background_color_code	#ffffff
+custom_css	
+site_logo	logo_68a31749c1b7a_1755518793.png
+
 -- Page sections table
 CREATE TABLE `page_sections` (
     `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -291,3 +317,29 @@ CREATE TABLE `carts` (
 
 INSERT INTO `users` (`name`, `email`, `email_verified_at`, `password`, `is_verified`, `role`) VALUES
 ('Admin User', 'admin@bhagyavidhan.com', '2025-01-01 10:00:00', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 1, 'admin');
+
+
+-- Add a new column to differentiate section types
+ALTER TABLE `page_sections` ADD `section_type` VARCHAR(50) NOT NULL DEFAULT 'default' AFTER `section_slug`;
+
+-- Ensure the content column can hold a lot of HTML
+ALTER TABLE `page_sections` CHANGE `content` `content` LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL;
+
+-- Migrate existing sections to use the new type system
+UPDATE `page_sections` SET `section_type` = `section_slug`;
+
+-- Insert rows for the sections that were previously hard-coded, so you can control them
+INSERT INTO `page_sections` (`page_slug`, `section_slug`, `section_type`, `title`, `subtitle`, `is_active`, `sort_order`) VALUES
+('homepage', 'featured-services', 'featured-services', 'Featured Services', 'Top services handpicked for you.', 1, 2),
+('homepage', 'featured-products', 'featured-products', 'Featured Products', 'Check out our best-selling products.', 1, 3),
+('homepage', 'latest-blogs', 'latest-blogs', 'From Our Blog', 'Latest articles and insights from our team.', 1, 5),
+('homepage', 'faq', 'faq', 'Common Questions', NULL, 1, 6);
+
+-- Update the sort order for better initial layout
+UPDATE `page_sections` SET `sort_order` = 1 WHERE `section_slug` = 'hero';
+UPDATE `page_sections` SET `sort_order` = 4 WHERE `section_slug` = 'testimonials';
+
+
+ALTER TABLE blogs CHANGE image_url image VARCHAR(255) DEFAULT NULL;
+
+	
