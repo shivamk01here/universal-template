@@ -1,346 +1,347 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_','-', app()->getLocale()) }}">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Create account</title>
-
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.bunny.net">
-  <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
-
-  <style>
-    html,body{height:100%}
-    body{font-family:'Figtree', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial}
-    /* Toast animations */
-    .toast-enter { opacity:0; transform: translateY(-6px) scale(.98); }
-    .toast-enter-active { opacity:1; transform: translateY(0) scale(1); transition: all .22s ease; }
-    .toast-leave { opacity:1; transform: translateY(0) scale(1); }
-    .toast-leave-active { opacity:0; transform: translateY(-6px) scale(.98); transition: all .18s ease; }
-    [x-cloak]{ display:none !important; }
-  </style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ $siteSettings['site_name'] ?? config('app.name','Laravel') }} | Register</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+    <style>
+        :root {
+            --primary-color: {{ $siteSettings['primary_color'] ?? '#374151' }};
+            --secondary-color: {{ $siteSettings['secondary_color'] ?? '#6b7280' }};
+            --button-color: {{ $siteSettings['button_color'] ?? '#1f2937' }};
+            --background-color: {{ $siteSettings['background_color'] ?? '#ffffff' }};
+            --glass-bg-light: rgba(255,255,255,0.80);
+            --glass-bg-dark: rgba(55,65,81,0.75);
+        }
+        [data-theme="dark"] {
+            --bg: #111827;
+            --text: #F3F4F6;
+            --glass-bg: var(--glass-bg-dark);
+            --gradient-bg: linear-gradient(135deg, #232526 0%, #414345 100%);
+        }
+        [data-theme="light"] {
+            --bg: #f9fafb;
+            --text: #22223b;
+            --glass-bg: var(--glass-bg-light);
+            --gradient-bg: linear-gradient(135deg, #f3f4f6 0%, #e0e7ff 100%);
+        }
+        body {
+            font-family: 'Figtree', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial;
+            background: var(--gradient-bg);
+            color: var(--text);
+            min-height: 100vh;
+            transition: background 0.3s;
+        }
+        .glass-card {
+            background: var(--glass-bg);
+            box-shadow: 0 8px 32px 0 rgba(31,38,135,0.11);
+            border-radius: 2rem;
+            border: 1.5px solid rgba(255,255,255,0.24);
+            backdrop-filter: blur(12px) saturate(115%);
+            -webkit-backdrop-filter: blur(12px) saturate(115%);
+        }
+        .theme-toggle {
+            border: none;
+            outline: none;
+            background: none;
+            font-size: 1.4rem;
+            color: var(--text);
+            padding: 0.4rem 0.65rem;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .theme-toggle:hover {
+            background: rgba(0,0,0,0.05);
+        }
+        .form-error {
+            border-color: #ef4444 !important;
+            background: #fef2f2 !important;
+        }
+        .error-msg { color: #dc2626; font-size: 13px; margin-top: 2px; }
+        ::selection { background: #e0e7ff; }
+        [data-theme="dark"] ::selection { background: #232526; }
+        .card-border {
+            border: 2px solid rgba(120, 120, 120, 0.09);
+        }
+    </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 text-gray-900 antialiased">
-  <!-- Toast container -->
-  <div id="toast-root" class="pointer-events-none fixed top-4 right-4 z-[60] flex w-auto max-w-full flex-col gap-3"></div>
+<body data-theme="">
 
-  <main class="mx-auto flex min-h-screen max-w-7xl items-center justify-center px-4 py-12 sm:px-6">
-    <div class="w-full max-w-md">
-      <!-- Top utilities -->
-      <div class="mb-6 flex items-center justify-end gap-4 text-sm">
-        <a href="/" class="inline-flex items-center text-gray-700 hover:text-gray-900">
-          <i class="fa-solid fa-house mr-1 text-xs"></i>
-          Go home
-        </a>
-        <a href="javascript:void(0)" onclick="history.back()" class="inline-flex items-center text-gray-700 hover:text-gray-900">
-          <i class="fa-solid fa-arrow-left mr-1 text-xs"></i>
-          Go back
-        </a>
-      </div>
+    <!-- Theme Toggle -->
+    <button id="themeToggleBtn"
+        aria-label="Toggle theme"
+        class="theme-toggle absolute top-5 right-5 z-50"
+        title="Toggle light/dark mode">
+        <i class="fa-solid fa-moon hidden" id="themeMoon"></i>
+        <i class="fa-solid fa-sun hidden" id="themeSun"></i>
+    </button>
 
-      <!-- Heading -->
-      <div class="mb-8 text-center">
-        <div class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gray-900 text-white">
-          <i class="fa-solid fa-user-plus text-sm"></i>
-        </div>
-        <h1 class="text-2xl font-semibold tracking-tight sm:text-3xl">Create a new account</h1>
-        <p class="mt-2 text-sm text-gray-600">Join us in seconds. It’s fast and secure.</p>
-      </div>
-
-      <!-- Flash messages -->
-      @if (session('success'))
-        <div class="mb-4 rounded-lg border border-emerald-200 bg-emerald-50/80 p-3 text-sm text-emerald-800">
-          {{ session('success') }}
-        </div>
-      @endif
-      @if (session('error'))
-        <div class="mb-4 rounded-lg border border-rose-200 bg-rose-50/80 p-3 text-sm text-rose-800">
-          {{ session('error') }}
-        </div>
-      @endif
-      @if (session('info'))
-        <div class="mb-4 rounded-lg border border-sky-200 bg-sky-50/80 p-3 text-sm text-sky-800">
-          {{ session('info') }}
-        </div>
-      @endif
-
-      <!-- Validation errors -->
-      @if ($errors->any())
-        <div class="mb-4 rounded-lg border border-rose-200 bg-rose-50/80 p-3 text-sm text-rose-800">
-          <ul class="list-inside list-disc space-y-1">
-            @foreach ($errors->all() as $error)
-              <li>{{ $error }}</li>
-            @endforeach
-          </ul>
-        </div>
-      @endif
-
-      <!-- Register form -->
-      <div class="overflow-hidden rounded-2xl border border-gray-200/70 bg-white/85 p-8 shadow-sm backdrop-blur sm:p-10">
-        <form id="register-form" action="{{ route('register') }}" method="POST" class="space-y-6">
-          @csrf
-
-          <div class="space-y-4">
-            <div>
-              <label for="name" class="mb-2 block text-sm font-medium text-gray-700">Full Name</label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                required
-                value="{{ old('name') }}"
-                class="block w-full rounded-lg border border-gray-300/70 bg-white px-4 py-3 text-base text-gray-900 placeholder:text-gray-400 shadow-sm focus:border-gray-800 focus:ring-2 focus:ring-gray-800/15"
-                placeholder="John Doe"
-              />
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 md:px-0">
+        <div class="w-full max-w-4xl grid md:grid-cols-2 gap-8">
+            <!-- Left Brand Section -->
+            <div class="glass-card hidden md:flex flex-col justify-center items-center py-16 px-10 card-border select-none text-center">
+                <span class="mb-4">
+                    <i class="fa-solid fa-user-astronaut text-4xl text-primary-dynamic"></i>
+                </span>
+                <h2 class="font-extrabold text-3xl mb-2 tracking-tight">
+                    Hey! Join {{ $siteSettings['site_name'] ?? config('app.name','Our Company') }}
+                </h2>
+                <p class="text-md font-medium text-gray-500 dark:text-gray-300 max-w-xs mx-auto mb-5">
+                    Create your account and be a part of our awesome community.<br>
+                    Quick, secure, and always in style.<br>
+                    <span class="text-xs block mt-3 opacity-70">
+                        “{{ $siteSettings['site_description'] ?? 'Your journey starts with us.' }}”
+                    </span>
+                </p>
+                <img src="https://i.imgur.com/ZWnhY9F.png" alt="Register Illustration" class="w-32 mx-auto rounded-xl ring-1 ring-gray-200 shadow-md opacity-80">
             </div>
 
-            <div>
-              <label for="email" class="mb-2 block text-sm font-medium text-gray-700">Email address</label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autocomplete="email"
-                required
-                value="{{ old('email') }}"
-                class="block w-full rounded-lg border border-gray-300/70 bg-white px-4 py-3 text-base text-gray-900 placeholder:text-gray-400 shadow-sm focus:border-gray-800 focus:ring-2 focus:ring-gray-800/15"
-                placeholder="you@example.com"
-              />
+            <!-- Registration Form Section -->
+            <div class="glass-card relative z-10 p-8 sm:p-10 flex flex-col justify-center card-border">
+
+                <div class="mb-4 text-center md:text-left">
+                    <div class="inline-flex items-center justify-center mb-2 p-2 rounded-full bg-primary-dynamic/20">
+                        <i class="fa-solid fa-user-plus text-lg text-primary-dynamic"></i>
+                    </div>
+                    <h1 class="text-xl font-bold sm:text-2xl">Create a new account</h1>
+                    <p class="text-xs text-gray-500 dark:text-gray-300">Join us in seconds. It’s fast and secure.</p>
+                </div>
+
+                <!-- Flash messages from backend -->
+                @if (session('success'))
+                    <div class="mb-4 rounded-lg border border-emerald-200 bg-emerald-50/80 p-3 text-sm text-emerald-800">
+                        {{ session('success') }}
+                    </div>
+                @endif
+                @if (session('error'))
+                    <div class="mb-4 rounded-lg border border-rose-200 bg-rose-50/80 p-3 text-sm text-rose-800">
+                        {{ session('error') }}
+                    </div>
+                @endif
+                @if (session('info'))
+                    <div class="mb-4 rounded-lg border border-sky-200 bg-sky-50/80 p-3 text-sm text-sky-800">
+                        {{ session('info') }}
+                    </div>
+                @endif
+
+                <!-- Validation errors from backend -->
+                @if ($errors->any())
+                    <div class="mb-4 rounded-lg border border-rose-200 bg-rose-50/80 p-3 text-sm text-rose-800">
+                        <ul class="list-inside list-disc space-y-1">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                <!-- Register Form -->
+                <form id="register-form" action="{{ route('register') }}" method="POST" novalidate autocomplete="off" class="space-y-5">
+                    @csrf
+                    <div class="space-y-4">
+                        <div>
+                            <label for="name" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Full Name</label>
+                            <input
+                                id="name"
+                                name="name"
+                                type="text"
+                                required
+                                value="{{ old('name') }}"
+                                class="register-input block w-full rounded-lg border border-gray-300/60 bg-white/80 dark:bg-gray-800/60 px-4 py-3 text-base text-gray-900 dark:text-gray-200 placeholder:text-gray-400 shadow-sm focus:border-primary-dynamic focus:ring-2 focus:ring-primary-dynamic/15 transition"
+                                placeholder="John Doe"
+                                autocomplete="off"
+                            />
+                            <span class="error-msg hidden" id="nameError"></span>
+                        </div>
+                        <div>
+                            <label for="email" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Email address</label>
+                            <input
+                                id="email"
+                                name="email"
+                                type="email"
+                                autocomplete="email"
+                                required
+                                value="{{ old('email') }}"
+                                class="register-input block w-full rounded-lg border border-gray-300/60 bg-white/80 dark:bg-gray-800/60 px-4 py-3 text-base text-gray-900 dark:text-gray-200 placeholder:text-gray-400 shadow-sm focus:border-primary-dynamic focus:ring-2 focus:ring-primary-dynamic/15 transition"
+                                placeholder="you@example.com"
+                                autocomplete="off"
+                            />
+                            <span class="error-msg hidden" id="emailError"></span>
+                        </div>
+                        <div>
+                            <label for="password" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
+                            <div class="relative">
+                                <input
+                                    id="password"
+                                    name="password"
+                                    type="password"
+                                    autocomplete="new-password"
+                                    required
+                                    class="register-input block w-full rounded-lg border border-gray-300/60 bg-white/80 dark:bg-gray-800/60 px-4 py-3 pr-11 text-base text-gray-900 dark:text-gray-200 placeholder:text-gray-400 shadow-sm focus:border-primary-dynamic focus:ring-2 focus:ring-primary-dynamic/15 transition"
+                                    placeholder="••••••••"
+                                    minlength="6"
+                                />
+                                <button type="button" aria-label="Toggle password visibility"
+                                        class="absolute inset-y-0 right-0 grid w-10 place-items-center text-gray-500 hover:text-gray-700"
+                                        onclick="const i=this.previousElementSibling;i.type=i.type==='password'?'text':'password';this.querySelector('i').classList.toggle('fa-eye');this.querySelector('i').classList.toggle('fa-eye-slash');">
+                                    <i class="fa-solid fa-eye-slash text-sm"></i>
+                                </button>
+                            </div>
+                            <span class="error-msg hidden" id="passwordError"></span>
+                        </div>
+                        <div>
+                            <label for="password_confirmation" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Confirm Password</label>
+                            <div class="relative">
+                                <input
+                                    id="password_confirmation"
+                                    name="password_confirmation"
+                                    type="password"
+                                    autocomplete="new-password"
+                                    required
+                                    class="register-input block w-full rounded-lg border border-gray-300/60 bg-white/80 dark:bg-gray-800/60 px-4 py-3 pr-11 text-base text-gray-900 dark:text-gray-200 placeholder:text-gray-400 shadow-sm focus:border-primary-dynamic focus:ring-2 focus:ring-primary-dynamic/15 transition"
+                                    placeholder="••••••••"
+                                    minlength="6"
+                                />
+                                <button type="button" aria-label="Toggle confirm password visibility"
+                                        class="absolute inset-y-0 right-0 grid w-10 place-items-center text-gray-500 hover:text-gray-700"
+                                        onclick="const i=this.previousElementSibling;i.type=i.type==='password'?'text':'password';this.querySelector('i').classList.toggle('fa-eye');this.querySelector('i').classList.toggle('fa-eye-slash');">
+                                    <i class="fa-solid fa-eye-slash text-sm"></i>
+                                </button>
+                            </div>
+                            <span class="error-msg hidden" id="confirmError"></span>
+                        </div>
+                    </div>
+                    <div class="pt-2">
+                        <button
+                            id="registerBtn"
+                            type="submit"
+                            class="inline-flex w-full items-center justify-center rounded-lg bg-button-dynamic px-5 py-3 text-base font-medium text-white shadow-sm transition hover:bg-primary-dynamic hover:shadow-md"
+                        >
+                            <i class="fa-solid fa-user-check mr-2 text-sm"></i>
+                            Register
+                        </button>
+                    </div>
+                    <p class="pt-2 text-center text-sm text-gray-600 dark:text-gray-400">
+                        Already have an account?
+                        <a href="{{ route('login') }}" class="font-medium text-primary-dynamic hover:underline">Sign in</a>
+                    </p>
+                </form>
             </div>
-
-            <div>
-              <label for="password" class="mb-2 block text-sm font-medium text-gray-700">Password</label>
-              <div class="relative">
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autocomplete="new-password"
-                  required
-                  class="block w-full rounded-lg border border-gray-300/70 bg-white px-4 py-3 pr-11 text-base text-gray-900 placeholder:text-gray-400 shadow-sm focus:border-gray-800 focus:ring-2 focus:ring-gray-800/15"
-                  placeholder="••••••••"
-                />
-                <button type="button" aria-label="Toggle password visibility"
-                        class="absolute inset-y-0 right-0 grid w-10 place-items-center text-gray-500 hover:text-gray-700"
-                        onclick="const i=this.previousElementSibling;i.type=i.type==='password'?'text':'password';this.querySelector('i').classList.toggle('fa-eye');this.querySelector('i').classList.toggle('fa-eye-slash');">
-                  <i class="fa-solid fa-eye-slash text-sm"></i>
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label for="password_confirmation" class="mb-2 block text-sm font-medium text-gray-700">Confirm Password</label>
-              <div class="relative">
-                <input
-                  id="password_confirmation"
-                  name="password_confirmation"
-                  type="password"
-                  autocomplete="new-password"
-                  required
-                  class="block w-full rounded-lg border border-gray-300/70 bg-white px-4 py-3 pr-11 text-base text-gray-900 placeholder:text-gray-400 shadow-sm focus:border-gray-800 focus:ring-2 focus:ring-gray-800/15"
-                  placeholder="••••••••"
-                />
-                <button type="button" aria-label="Toggle confirm password visibility"
-                        class="absolute inset-y-0 right-0 grid w-10 place-items-center text-gray-500 hover:text-gray-700"
-                        onclick="const i=this.previousElementSibling;i.type=i.type==='password'?'text':'password';this.querySelector('i').classList.toggle('fa-eye');this.querySelector('i').classList.toggle('fa-eye-slash');">
-                  <i class="fa-solid fa-eye-slash text-sm"></i>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div class="pt-2">
-            <button
-              type="submit"
-              class="inline-flex w-full items-center justify-center rounded-lg bg-gray-900 px-5 py-3 text-base font-medium text-white shadow-sm transition hover:bg-gray-800 hover:shadow-md"
-            >
-              <i class="fa-solid fa-user-check mr-2 text-sm"></i>
-              Register
-            </button>
-          </div>
-
-          <p class="pt-2 text-center text-sm text-gray-600">
-            Already have an account?
-            <a href="{{ route('login') }}" class="font-medium text-gray-900 hover:underline">Sign in</a>
-          </p>
-        </form>
-      </div>
+        </div>
     </div>
-  </main>
+    <!-- Toast root (do not remove if your app.js uses it) -->
+    <div id="toast-root" class="pointer-events-none fixed top-4 right-4 z-[60] flex w-auto max-w-full flex-col gap-3"></div>
 
-  <!-- OTP Modal -->
-  <div id="otp-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 px-4">
-    <div class="w-full max-w-md overflow-hidden rounded-2xl border border-gray-200/70 bg-white p-6 shadow-xl">
-      <div class="mb-4 flex items-start gap-3">
-        <div class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-gray-900 text-white">
-          <i class="fa-solid fa-shield-keyhole text-xs"></i>
-        </div>
-        <div>
-          <h2 class="text-lg font-semibold text-gray-900">Verify Your Account</h2>
-          <p class="mt-1 text-sm text-gray-600">Please enter the OTP to complete registration. For demo, use 5454.</p>
-        </div>
-      </div>
+    <!-- Include your OTP modal here if you use one, unchanged. -->
+    @include('auth.partials.otp-modal')
 
-      <form id="otp-form" class="space-y-4">
-        <div>
-          <label for="otp-input" class="mb-2 block text-sm font-medium text-gray-700">One-Time Password</label>
-          <input id="otp-input" type="text" name="otp" required
-                 class="block w-full rounded-lg border border-gray-300/70 bg-white px-4 py-3 text-center text-lg tracking-[0.4em] text-gray-900 placeholder:text-gray-400 shadow-sm focus:border-gray-800 focus:ring-2 focus:ring-gray-800/15"
-                 placeholder="••••"/>
-          <p id="otp-error" class="mt-2 hidden text-sm text-rose-700"></p>
-        </div>
+    <script>
+        // THEME JS
+        function setTheme(theme) {
+            document.body.setAttribute("data-theme", theme);
+            localStorage.setItem('theme', theme);
+            document.getElementById('themeMoon').classList.toggle('hidden', theme !== 'dark');
+            document.getElementById('themeSun').classList.toggle('hidden', theme !== 'light');
+        }
+        function toggleTheme() {
+            const curr = document.body.getAttribute("data-theme") || "light";
+            setTheme(curr === "dark" ? "light" : "dark");
+        }
+        document.getElementById('themeToggleBtn').onclick = toggleTheme;
+        (function(){
+            let theme = localStorage.getItem('theme');
+            if(!theme) theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            setTheme(theme);
+        })();
 
-        <button id="verify-otp-btn" type="button"
-                class="inline-flex w-full items-center justify-center rounded-lg bg-gray-900 px-5 py-3 text-base font-medium text-white shadow-sm transition hover:bg-gray-800 hover:shadow-md">
-          <i class="fa-solid fa-circle-check mr-2 text-sm"></i>
-          Verify & Create Account
-        </button>
+        // FRONTEND VALIDATION (stays simple; blade validation still works)
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('register-form');
+            const name = document.getElementById('name');
+            const email = document.getElementById('email');
+            const password = document.getElementById('password');
+            const confirm = document.getElementById('password_confirmation');
+            const btn = document.getElementById('registerBtn');
 
-        <div class="text-center">
-          <button type="button" class="text-sm text-gray-600 hover:text-gray-900" onclick="closeOtpModal()">Cancel</button>
-        </div>
-      </form>
-    </div>
-  </div>
+            const nameErr = document.getElementById('nameError');
+            const emailErr = document.getElementById('emailError');
+            const passErr = document.getElementById('passwordError');
+            const confErr = document.getElementById('confirmError');
 
-  <script>
-    // Mini toast system
-    function addToast({ type='info', message='', timeout=5000 }){
-      const root = document.getElementById('toast-root');
-      if(!root) return;
-      const map = {
-        success:{ ring:'ring-1 ring-emerald-300/60', grad:'from-emerald-50/90 to-white/90', icon:'fa-check', text:'text-emerald-900', sub:'text-emerald-700' },
-        error:{ ring:'ring-1 ring-rose-300/60', grad:'from-rose-50/90 to-white/90', icon:'fa-xmark', text:'text-rose-900', sub:'text-rose-700' },
-        info:{ ring:'ring-1 ring-gray-300/60', grad:'from-gray-50/90 to-white/90', icon:'fa-info', text:'text-gray-900', sub:'text-gray-600' }
-      };
-      const c = map[type] || map.info;
-      const wrap = document.createElement('div');
-      wrap.className = `pointer-events-auto rounded-xl border border-white/60 ${c.ring} bg-gradient-to-br ${c.grad} backdrop-blur-sm shadow-xl overflow-hidden`;
-      wrap.innerHTML = `
-        <div class="toast-enter flex max-w-sm items-start gap-3 px-4 py-3 sm:px-5 sm:py-4">
-          <div class="mt-0.5 inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full ${c.text.replace('text-','bg-')} text-white shadow-sm">
-            <i class="fa-solid ${c.icon} text-sm"></i>
-          </div>
-          <div class="min-w-0 flex-1">
-            <p class="text-sm font-medium ${c.text}">${escapeHtml(String(message))}</p>
-            <p class="mt-0.5 text-xs ${c.sub}">Tap to dismiss</p>
-          </div>
-          <button type="button" aria-label="Close"
-                  class="ml-1 inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md text-gray-500 hover:bg-black/5">
-            <i class="fa-solid fa-xmark text-sm"></i>
-          </button>
-        </div>
-      `;
-      root.appendChild(wrap);
-      requestAnimationFrame(()=>{
-        const inner = wrap.firstElementChild;
-        inner.classList.add('toast-enter-active'); inner.classList.remove('toast-enter');
-      });
-      const close=()=>{
-        const inner=wrap.firstElementChild;
-        inner.classList.remove('toast-enter-active'); inner.classList.add('toast-leave');
-        requestAnimationFrame(()=> inner.classList.add('toast-leave-active'));
-        setTimeout(()=> wrap.remove(), 200);
-      };
-      let timer=null; if(timeout>0) timer=setTimeout(close, timeout);
-      wrap.addEventListener('mouseenter', ()=> timer && clearTimeout(timer));
-      wrap.addEventListener('mouseleave', ()=> { if(timeout>0) timer=setTimeout(close, 2000); });
-      wrap.addEventListener('click', close);
-      wrap.querySelector('button')?.addEventListener('click', (e)=>{ e.stopPropagation(); close(); });
-    }
-    function escapeHtml(str){ return str.replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+            // Mini functions for error visibility
+            function showErr(input, msg, ele) {
+                input.classList.add('form-error');
+                ele.textContent = msg;
+                ele.classList.remove('hidden');
+            }
+            function hideErr(input, ele) {
+                input.classList.remove('form-error');
+                ele.textContent = "";
+                ele.classList.add('hidden');
+            }
 
-    // Modal helpers
-    function openOtpModal(){
-      const m = document.getElementById('otp-modal');
-      m.classList.remove('hidden');
-      m.classList.add('flex');
-      setTimeout(()=> document.getElementById('otp-input')?.focus(), 50);
-    }
-    function closeOtpModal(){
-      const m = document.getElementById('otp-modal');
-      m.classList.add('hidden');
-      m.classList.remove('flex');
-    }
+            function validate() {
+                let v = true;
 
-    document.addEventListener('DOMContentLoaded', function () {
-      const registerForm = document.getElementById('register-form');
-      const verifyBtn = document.getElementById('verify-otp-btn');
-      const otpError = document.getElementById('otp-error');
-
-      // AJAX register
-      registerForm.addEventListener('submit', async function (e) {
-        e.preventDefault();
-        const formData = new FormData(this);
-        try {
-          const response = await fetch("{{ route('register') }}", {
-            method: 'POST',
-            body: formData,
-            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
-          });
-
-          if (response.ok) {
-            // Show OTP modal
-            openOtpModal();
-          } else {
-            // Try to read JSON validation errors
-            let msg = 'Registration failed. Please check your details.';
-            try {
-              const data = await response.json();
-              if (data?.message) msg = data.message;
-              if (data?.errors) {
-                const firstField = Object.keys(data.errors)[0];
-                if (firstField && data.errors[firstField]?.length) {
-                  msg = data.errors[firstField];
+                // NAME
+                if(name.value.trim().length < 2) {
+                    showErr(name, "Please enter your full name.", nameErr);
+                    v = false;
+                } else {
+                    hideErr(name, nameErr);
                 }
-              }
-            } catch(_) {}
-            addToast({ type:'error', message: msg, timeout: 6000 });
-          }
-        } catch (err) {
-          addToast({ type:'error', message:'Network error. Please try again.', timeout: 6000 });
-        }
-      });
 
-      // Verify OTP
-      verifyBtn.addEventListener('click', async function () {
-        const otpInput = document.getElementById('otp-input');
-        otpError.classList.add('hidden');
-        otpError.textContent = '';
+                // EMAIL
+                let mailPattern = /^[^@\s]+@[^@\s]+\.[a-zA-Z]{2,}$/;
+                if(!mailPattern.test(email.value.trim())) {
+                    showErr(email, "Enter a valid email address.", emailErr);
+                    v = false;
+                } else {
+                    hideErr(email, emailErr);
+                }
 
-        const formData = new FormData();
-        formData.append('otp', otpInput.value);
+                // PASSWORD
+                if(password.value.length < 6) {
+                    showErr(password, "Password must be at least 6 characters.", passErr);
+                    v = false;
+                } else {
+                    hideErr(password, passErr);
+                }
 
-        try {
-          const response = await fetch("{{ route('register.verify') }}", {
-            method: 'POST',
-            body: formData,
-            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
-          });
+                // CONFIRM
+                if(confirm.value !== password.value || confirm.value.length < 6) {
+                    showErr(confirm, "Passwords do not match.", confErr);
+                    v = false;
+                } else {
+                    hideErr(confirm, confErr);
+                }
 
-          let result = {};
-          try { result = await response.json(); } catch(_) {}
+                btn.disabled = !v;
+                btn.style.opacity = !v ? 0.5 : 1;
+                return v;
+            }
+            // Live validation
+            [name, email, password, confirm].forEach(i=>{
+                i.addEventListener('input', validate);
+                i.addEventListener('blur', validate);
+            });
 
-          if (response.ok) {
-            addToast({ type:'success', message:'Verified! Redirecting…', timeout: 2000 });
-            window.location.href = result.redirect_url || "{{ url('/') }}";
-          } else {
-            const msg = result.error || result.message || 'Verification failed.';
-            otpError.textContent = msg;
-            otpError.classList.remove('hidden');
-          }
-        } catch (err) {
-          otpError.textContent = 'Network error. Please try again.';
-          otpError.classList.remove('hidden');
-        }
-      });
+            // Form submit: block if not valid
+            form.addEventListener('submit', function(e){
+                if(!validate()) {
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
 
-      // Close modal on Escape
-      document.addEventListener('keydown', (e)=>{
-        if(e.key === 'Escape'){ closeOtpModal(); }
-      });
-    });
-  </script>
+    {{-- If you have custom.js or app.js, do not duplicate toasts/OTP/modal logic here! --}}
+    <script src="{{ asset('js/app.js') }}"></script>
 </body>
 </html>
