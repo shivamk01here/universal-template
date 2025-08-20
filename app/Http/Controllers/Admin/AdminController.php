@@ -62,6 +62,7 @@ class AdminController extends Controller
     public function managePages()
     {
         $pageSections = DB::select('SELECT * FROM page_sections ORDER BY page_slug, sort_order');
+        dd($pageSections);
         return view('admin.pages.index', compact('pageSections'));
     }
 

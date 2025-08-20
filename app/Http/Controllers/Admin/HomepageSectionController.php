@@ -1,11 +1,12 @@
 <?php
-// app/Http/Controllers/Admin/HomepageSectionController.php (NEW FILE)
 
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class HomepageSectionController extends Controller
 {
@@ -28,7 +29,13 @@ class HomepageSectionController extends Controller
             'section_type' => 'required|string',
             'sort_order' => 'required|integer',
             'content' => 'nullable|string',
+            'image' => 'nullable|image|max:2048',
         ]);
+
+        $imagePath = null;
+        if($request->hasFile('image')){
+            $imagePath = $request->file('image')->store('sections', 'public');
+        }
 
         DB::table('page_sections')->insert([
             'page_slug' => 'homepage',
@@ -37,6 +44,7 @@ class HomepageSectionController extends Controller
             'section_slug' => $request->section_slug,
             'section_type' => $request->section_type,
             'content' => $request->section_type === 'custom-html' ? $request->content : null,
+            'image' => $imagePath,
             'is_active' => $request->has('is_active') ? 1 : 0,
             'sort_order' => $request->sort_order,
         ]);
@@ -56,12 +64,21 @@ class HomepageSectionController extends Controller
             'title' => 'required|string|max:255',
             'sort_order' => 'required|integer',
             'content' => 'nullable|string',
+            'image' => 'nullable|image|max:2048',
         ]);
+
+        $section = DB::selectOne('SELECT * FROM page_sections WHERE id = ?', [$id]);
+        $imagePath = $section->image ?? null;
+        if($request->hasFile('image')){
+            if($imagePath) Storage::disk('public')->delete($imagePath);
+            $imagePath = $request->file('image')->store('sections', 'public');
+        }
 
         DB::table('page_sections')->where('id', $id)->update([
             'title' => $request->title,
             'subtitle' => $request->subtitle,
             'content' => $request->section_type === 'custom-html' ? $request->content : null,
+            'image' => $imagePath,
             'is_active' => $request->has('is_active') ? 1 : 0,
             'sort_order' => $request->sort_order,
         ]);
@@ -71,7 +88,20 @@ class HomepageSectionController extends Controller
 
     public function destroy($id)
     {
+        $section = DB::selectOne('SELECT * FROM page_sections WHERE id = ?', [$id]);
+        if ($section && $section->image) {
+            Storage::disk('public')->delete($section->image);
+        }
         DB::table('page_sections')->where('id', $id)->delete();
         return back()->with('success', 'Section deleted successfully.');
+    }
+
+    // AJAX endpoint for drag-and-drop sorting
+    public function order(Request $request)
+    {
+        foreach ($request->order as $index => $id) {
+            DB::table('page_sections')->where('id', $id)->update(['sort_order' => $index + 1]);
+        }
+        return response()->json(['status' => 'ok']);
     }
 }

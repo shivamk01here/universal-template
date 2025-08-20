@@ -342,4 +342,24 @@ UPDATE `page_sections` SET `sort_order` = 4 WHERE `section_slug` = 'testimonials
 
 ALTER TABLE blogs CHANGE image_url image VARCHAR(255) DEFAULT NULL;
 
+
+-- Add new columns to control the appearance of each section
+ALTER TABLE `page_sections`
+ADD `layout_template` VARCHAR(100) NOT NULL DEFAULT 'default' AFTER `section_slug`,
+ADD `bg_image` VARCHAR(255) NULL DEFAULT NULL AFTER `content`,
+ADD `bg_color` VARCHAR(50) NULL DEFAULT NULL AFTER `bg_image`;
+
+-- Clear out old homepage sections to start fresh for the /main page
+DELETE FROM `page_sections` WHERE `page_slug` = 'homepage';
+
+-- Insert the default, controllable sections for the new /main page
+INSERT INTO `page_sections` (`page_slug`, `section_slug`, `layout_template`, `title`, `subtitle`, `content`, `bg_image`, `bg_color`, `is_active`, `sort_order`) VALUES
+('main', 'hero-banner', 'hero-center', 'Welcome to Your Store', 'This is a fully editable subtitle.', '{\"button_text\":\"Explore Now\",\"button_link\":\"/items\"}', NULL, '#f9fafb', 1, 1),
+('main', 'featured-services', 'item-grid', 'Our Premier Services', 'Handpicked services to meet your needs.', '{\"item_type\":\"SERVICE\",\"limit\":4}', NULL, '#ffffff', 1, 2),
+('main', 'featured-products', 'item-grid', 'Top Selling Products', 'Customer favorites you don\'t want to miss.', '{\"item_type\":\"PRODUCT\",\"limit\":4}', NULL, '#f9fafb', 1, 3),
+('main', 'testimonials', 'testimonial-slider', 'What Our Clients Say', 'Real stories from our satisfied customers.', NULL, NULL, '#ffffff', 1, 4),
+('main', 'latest-blogs', 'blog-grid', 'From Our Blog', 'Latest articles and insights from our team.', '{\"limit\":3}', NULL, '#f9fafb', 1, 5),
+('main', 'faq', 'faq-accordion', 'Common Questions', 'Everything you need to know.', NULL, NULL, '#ffffff', 1, 6);
+
+alter table page_sections add column image varchar(255) after bg_color;
 	

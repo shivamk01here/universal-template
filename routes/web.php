@@ -156,6 +156,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
      Route::get('/pages/{id}/edit', [HomepageSectionController::class, 'edit'])->name('pages.edit');
      Route::post('/pages/update/{id}', [HomepageSectionController::class, 'update'])->name('pages.update'); // Note: Should ideally be PUT/PATCH
      Route::delete('/pages/{id}', [HomepageSectionController::class, 'destroy'])->name('pages.destroy');
+     Route::post('/pages/order', [HomepageSectionController::class, 'order'])->name('pages.order');
  
  
 });

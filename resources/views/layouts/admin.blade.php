@@ -5,15 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - {{ $siteSettings['site_name'] ?? config('app.name') }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+    <!-- Heroicons (for premium icons) -->
+    <link rel="stylesheet" href="https://unpkg.com/@tabler/icons/iconfont/tabler-icons.min.css">
 </head>
 <body class="bg-gray-100">
-    <div class="flex h-screen bg-gray-200">
+    <div x-data="{ sidebarOpen: false, 
+                   toast: { show: false, type: '', message: '' }, 
+                   showToast(type, message) { 
+                        this.toast.type = type; 
+                        this.toast.message = message; 
+                        this.toast.show = true;
+                        setTimeout(() => { this.toast.show = false }, 3500);
+                   },
+                   closeToast() { this.toast.show = false }
+                }" 
+         x-init="
+         @if(session('success'))
+           showToast('success', '{{ addslashes(session('success')) }}');
+         @elseif(session('error'))
+           showToast('error', '{{ addslashes(session('error')) }}');
+         @elseif(session('warning'))
+           showToast('warning', '{{ addslashes(session('warning')) }}');
+         @endif
+         "
+         class="flex h-screen bg-gray-100 relative"
+    >
         <!-- Sidebar -->
-        <div class="w-64 bg-gray-800 text-white flex flex-col">
-            <div class="px-8 py-6 text-2xl font-bold">{{ $siteSettings['site_name'] ?? 'Admin Panel' }}</div>
+        <div :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+             class="fixed md:static z-30 inset-y-0 left-0 w-64 bg-gray-800 text-white transform md:translate-x-0 transition-transform duration-200 ease-in-out flex flex-col">
+            <div class="px-8 py-6 flex items-center justify-between text-2xl font-bold bg-gray-900 md:bg-gray-800">
+                {{ $siteSettings['site_name'] ?? 'Admin Panel' }}
+                <button @click="sidebarOpen = false" class="md:hidden">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
             <nav class="flex-1 px-4 py-4 space-y-2">
-                <!-- Your existing nav items -->
                 <a href="{{ route('admin.dashboard') }}" class="flex items-center px-4 py-2 rounded hover:bg-gray-700"><i class="fas fa-tachometer-alt mr-3"></i> Dashboard</a>
                 <a href="{{ route('admin.settings') }}" class="flex items-center px-4 py-2 rounded hover:bg-gray-700"><i class="fas fa-cogs mr-3"></i> Site Settings</a>
                 <a href="{{ route('admin.pages.index') }}" class="flex items-center px-4 py-2 rounded hover:bg-gray-700"><i class="fas fa-file-alt mr-3"></i> Homepage Sections</a>
@@ -34,42 +61,30 @@
                 </form>
             </div>
         </div>
+        
+        <!-- Overlay for mobile sidebar -->
+        <div x-show="sidebarOpen" @click="sidebarOpen = false"
+             class="fixed inset-0 z-20 bg-black bg-opacity-30 md:hidden"></div>
 
         <!-- Main content -->
-        <div class="flex-1 flex flex-col overflow-hidden">
-            <header class="bg-white shadow">
-                <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                    <h1 class="text-3xl font-bold text-gray-900">@yield('title')</h1>
+        <div class="flex-1 flex flex-col overflow-hidden min-w-0">
+            <!-- Mobile header -->
+            <header class="bg-white shadow flex items-center justify-between px-4 py-3 md:hidden">
+                <button @click="sidebarOpen = true" class="text-gray-700 focus:outline-none">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+                <div class="text-2xl font-bold">
+                    {{ $siteSettings['site_name'] ?? 'Admin Panel' }}
                 </div>
             </header>
-            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
-                
-                {{-- Flash Error Messages --}}
-                @if (session('error'))
-                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6 relative" role="alert">
-                        <strong class="font-bold">Error!</strong>
-                        <span class="block sm:inline ml-2">{{ session('error') }}</span>
-                        <button type="button" class="absolute top-0 bottom-0 right-0 px-4 py-3" onclick="this.parentElement.remove()">
-                            <svg class="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/>
-                            </svg>
-                        </button>
-                    </div>
-                @endif
+            <!-- Desktop header -->
+            <header class="hidden md:block bg-white shadow">
+                <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+                    <h1 class="text-2xl md:text-3xl font-bold text-gray-900">@yield('title')</h1>
+                </div>
+            </header>
 
-                {{-- Flash Success Messages --}}
-                @if (session('success'))
-                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6 relative" role="alert">
-                        <strong class="font-bold">Success!</strong>
-                        <span class="block sm:inline ml-2">{{ session('success') }}</span>
-                        <button type="button" class="absolute top-0 bottom-0 right-0 px-4 py-3" onclick="this.parentElement.remove()">
-                            <svg class="fill-current h-6 w-6 text-green-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/>
-                            </svg>
-                        </button>
-                    </div>
-                @endif
-
+            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-4 sm:p-6">
                 {{-- Validation Errors --}}
                 @if ($errors->any())
                     <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
@@ -81,33 +96,81 @@
                         </ul>
                     </div>
                 @endif
-
-                {{-- Warning Messages --}}
-                @if (session('warning'))
-                    <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-6" role="alert">
-                        <strong class="font-bold">Warning!</strong>
-                        <span class="block sm:inline ml-2">{{ session('warning') }}</span>
-                    </div>
-                @endif
-
                 @yield('content')
             </main>
         </div>
+
+        <!-- Toast Notification (global, premium style) -->
+        <div
+          x-show="toast.show"
+          x-transition:enter="transform ease-out duration-300 transition"
+          x-transition:enter-start="translate-y-8 opacity-0"
+          x-transition:enter-end="translate-y-0 opacity-100"
+          x-transition:leave="transform ease-in duration-300 transition"
+          x-transition:leave-start="translate-y-0 opacity-100"
+          x-transition:leave-end="translate-y-8 opacity-0"
+          @keydown.escape.window="closeToast"
+          class="fixed flex flex-col items-end md:items-end space-y-2 z-50 bottom-6 right-6 max-w-xs w-full pointer-events-none px-2 md:px-0">
+
+          <template x-if="toast.type === 'success'">
+              <div class="pointer-events-auto flex items-center shadow-lg rounded-lg bg-green-50 border border-green-200 px-5 py-4 gap-3 animate-bounce-in animate-premium">
+                  <span class="rounded-full bg-green-100 p-2">
+                    <svg class="h-6 w-6 text-green-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                    </svg>
+                  </span>
+                  <div class="flex-1 text-green-800 font-semibold" x-text="toast.message"></div>
+                  <button @click="closeToast" class="ml-2 text-green-600 hover:text-green-900">
+                      <i class="fa fa-times"></i>
+                  </button>
+              </div>
+          </template>
+          <template x-if="toast.type === 'error'">
+              <div class="pointer-events-auto flex items-center shadow-lg rounded-lg bg-red-50 border border-red-200 px-5 py-4 gap-3 animate-bounce-in animate-premium">
+                  <span class="rounded-full bg-red-100 p-2">
+                    <svg class="h-6 w-6 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                  </span>
+                  <div class="flex-1 text-red-800 font-semibold" x-text="toast.message"></div>
+                  <button @click="closeToast" class="ml-2 text-red-600 hover:text-red-900">
+                      <i class="fa fa-times"></i>
+                  </button>
+              </div>
+          </template>
+          <template x-if="toast.type === 'warning'">
+              <div class="pointer-events-auto flex items-center shadow-lg rounded-lg bg-yellow-50 border border-yellow-200 px-5 py-4 gap-3 animate-bounce-in animate-premium">
+                  <span class="rounded-full bg-yellow-100 p-2">
+                    <svg class="h-6 w-6 text-yellow-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                  </span>
+                  <div class="flex-1 text-yellow-800 font-semibold" x-text="toast.message"></div>
+                  <button @click="closeToast" class="ml-2 text-yellow-600 hover:text-yellow-900">
+                      <i class="fa fa-times"></i>
+                  </button>
+              </div>
+          </template>
+        </div>
     </div>
 
-    {{-- Add some JavaScript for better UX --}}
-    <script>
-        // Auto-hide success messages after 5 seconds
-        setTimeout(function() {
-            const successAlerts = document.querySelectorAll('.bg-green-100');
-            successAlerts.forEach(function(alert) {
-                alert.style.transition = 'opacity 0.5s';
-                alert.style.opacity = '0';
-                setTimeout(function() {
-                    alert.remove();
-                }, 500);
-            });
-        }, 5000);
-    </script>
+    <!-- Alpine.js for sidebar & toast toggle -->
+    <script src="https://unpkg.com/alpinejs@3.13.0/dist/cdn.min.js" defer></script>
+    <!-- Optional Toast Animation (add in <head> or inline below) -->
+    <style>
+      @keyframes bounce-in {
+        0% { transform: scale(.8) translateY(60px); opacity: 0;}
+        60% { transform: scale(1.05) translateY(-6px); opacity: 1;}
+        100% { transform: scale(1) translateY(0); }
+      }
+      .animate-bounce-in {
+        animation: bounce-in 0.59s cubic-bezier(0.68, -0.6, 0.32, 1.6);
+      }
+      /* For a “premium” shadow and rounded feel */
+      .animate-premium {
+        box-shadow: 0 8px 32px rgba(32,41,101,0.2), 0 1.5px 4px rgba(30,41,59,.04);
+        border-radius: 1.1rem;
+      }
+    </style>
 </body>
 </html>
