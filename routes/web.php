@@ -37,6 +37,10 @@ use App\Http\Controllers\Admin\HomepageSectionController;
 
 // Homepage
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+Route::get('/custom', [HomeController::class, 'custom'])->name('custom');
+
+
 Route::get('/error', function() {
     return back()->with('error', 'This is a test error message');
 });
@@ -156,7 +160,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
      Route::get('/pages/{id}/edit', [HomepageSectionController::class, 'edit'])->name('pages.edit');
      Route::post('/pages/update/{id}', [HomepageSectionController::class, 'update'])->name('pages.update'); // Note: Should ideally be PUT/PATCH
      Route::delete('/pages/{id}', [HomepageSectionController::class, 'destroy'])->name('pages.destroy');
-     Route::post('/pages/order', [HomepageSectionController::class, 'order'])->name('pages.order');
+     Route::post('/pages/order', [HomepageSectionController::class, 'order'])->name('apages.order');
  
  
 });
