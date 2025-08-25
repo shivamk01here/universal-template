@@ -42,15 +42,14 @@
             </div>
             <nav class="flex-1 px-4 py-4 space-y-2">
                 <a href="{{ route('admin.dashboard') }}" class="flex items-center px-4 py-2 rounded hover:bg-gray-700"><i class="fas fa-tachometer-alt mr-3"></i> Dashboard</a>
-                <a href="{{ route('admin.settings') }}" class="flex items-center px-4 py-2 rounded hover:bg-gray-700"><i class="fas fa-cogs mr-3"></i> Site Settings</a>
-                <a href="{{ route('admin.pages.index') }}" class="flex items-center px-4 py-2 rounded hover:bg-gray-700"><i class="fas fa-file-alt mr-3"></i> Homepage Sections</a>
+                <a href="{{ route('admin.settings') }}" class="flex items-center px-4 py-2 rounded hover:bg-gray-700"><i class="fas fa-cogs mr-3"></i> Site Settings</a
+                <a href="{{ route('admin.homepage-sections.index') }}" class="flex items-center px-4 py-2 rounded hover:bg-gray-700"><i class="fas fa-file-alt mr-3"></i>Homepage Sections</a>
                 <a href="{{ route('admin.categories.index') }}" class="flex items-center px-4 py-2 rounded hover:bg-gray-700"><i class="fas fa-tags mr-3"></i> Categories</a>
                 <a href="{{ route('admin.items.index') }}" class="flex items-center px-4 py-2 rounded hover:bg-gray-700"><i class="fas fa-box-open mr-3"></i> Items</a>
                 <a href="{{ route('admin.blogs.index') }}" class="flex items-center px-4 py-2 rounded hover:bg-gray-700"><i class="fas fa-newspaper mr-3"></i> Blog Posts</a>
                 <a href="{{ route('admin.faqs.index') }}" class="flex items-center px-4 py-2 rounded hover:bg-gray-700"><i class="fas fa-question-circle mr-3"></i> FAQs</a>
                 <a href="{{ route('admin.static-pages.index') }}" class="flex items-center px-4 py-2 rounded hover:bg-gray-700"><i class="fas fa-book mr-3"></i> Static Pages</a>
                 <a href="{{ route('admin.testimonials.index') }}" class="flex items-center px-4 py-2 rounded hover:bg-gray-700"><i class="fas fa-comment-dots mr-3"></i> Testimonials</a>
-                <a href="{{ route('admin.homepage-sections.index') }}" class="flex items-center px-4 py-2 rounded hover:bg-gray-700"><i class="fas fa-file-alt mr-3"></i>Homepage Sections NEW</a>
                 <a href="{{ route('home') }}" target="_blank" class="flex items-center px-4 py-2 rounded hover:bg-gray-700"><i class="fas fa-globe mr-3"></i> View Site</a>
             </nav>
             <div class="px-8 py-4">

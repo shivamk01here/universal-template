@@ -420,3 +420,6 @@ INSERT INTO `homepage_sections` (`id`, `homepage_id`, `section_slug`, `template_
 (9, 1, 'services', 'template-1', 5, '{\"heading\":\"Services We Offer\",\"subheading\":\"Our services are designed to help you achieve your goals and grow your business.\",\"bg_color\":\"#f9fafb\",\"bg_image_url\":\"\"}', 1),
 (10, 1, 'hero', 'template-2', 9, '{\"heading\":\"Another Powerful Headline\",\"subheading\":\"This is a different hero layout with a centered approach, perfect for impactful statements.\",\"primary_cta_text\":\"Explore Features\",\"primary_cta_link\":\"#features\",\"primary_cta_bg_color\":\"#db2777\",\"bg_color\":\"#111827\",\"bg_image_url\":\"https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80\"}', 0),
 (11, 1, 'hero', 'template-3', 10, '{\"heading\":\"Simple, Elegant, Effective.\",\"subheading\":\"A clean and minimal hero section that puts all the focus on your message.\",\"primary_cta_text\":\"Learn More\",\"primary_cta_link\":\"#\",\"primary_cta_bg_color\":\"#16a34a\",\"bg_color\":\"#f1f5f9\",\"bg_image_url\":\"\"}', 0);
+
+
+alter table laravel_universal.items add column image_url varchar(251);

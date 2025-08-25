@@ -8,17 +8,17 @@
             @foreach($testimonials as $testimonial)
             <div class="bg-white p-8 rounded-lg shadow-md">
                 <div class="flex items-center mb-4">
-                    <img src="{{ $testimonial->author_avatar }}" alt="{{ $testimonial->author_name }}" class="w-12 h-12 rounded-full mr-4">
+                    <img src="{{ $testimonial->image_url }}" alt="{{ $testimonial->customer_name }}" class="w-12 h-12 rounded-full mr-4">
                     <div>
-                        <p class="font-bold text-gray-800">{{ $testimonial->author_name }}</p>
-                        <p class="text-sm text-gray-500">{{ $testimonial->author_title }}</p>
+                        <p class="font-bold text-gray-800">{{ $testimonial->customer_name }}</p>
+                        <p>class="text-sm text-gray-500">{{ $testimonial->location }}</p>
                     </div>
                 </div>
                 <div class="text-yellow-400 mb-4">
                     @for($i = 0; $i < $testimonial->rating; $i++) <i class="fas fa-star"></i> @endfor
                     @for($i = 0; $i < 5 - $testimonial->rating; $i++) <i class="far fa-star"></i> @endfor
                 </div>
-                <p class="text-gray-600 italic">"{{ $testimonial->review_text }}"</p>
+                <p class="text-gray-600 italic">"{{ $testimonial->quote }}"</p>
             </div>
             @endforeach
         </div>

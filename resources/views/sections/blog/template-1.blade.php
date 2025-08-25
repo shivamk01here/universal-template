@@ -8,15 +8,15 @@
             @forelse($blogs as $post)
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
                 <a href="#">
-                    <img src="{{ $post->featured_image }}" alt="{{ $post->title }}" class="w-full h-48 object-cover">
+                    <img src="{{ $post->image }}" alt="{{ $post->title }}" class="w-full h-48 object-cover">
                 </a>
                 <div class="p-6">
-                    <p class="text-sm text-gray-500 mb-2">{{ date('M d, Y', strtotime($post->published_at)) }}</p>
+                    <p class="text-sm text-gray-500 mb-2">{{ date('M d, Y', strtotime($post->created_at)) }}</p>
                     <h3 class="text-xl font-bold text-gray-800 mb-2">
                         <a href="#" class="hover:text-indigo-600 transition">{{ $post->title }}</a>
                     </h3>
-                    <p class="text-gray-600 mb-4">{{ $post->excerpt }}</p>
-                    <a href="#" class="font-semibold text-indigo-600 hover:text-indigo-800 transition">Read More &rarr;</a>
+                    <!-- <p class="text-gray-600 mb-4">{{ $post->content }}</p> -->
+                    <a href="{{ route('blogs.show', $post->slug) }}"  class="font-semibold text-indigo-600 hover:text-indigo-800 transition">Read More &rarr;</a>
                 </div>
             </div>
             @empty
