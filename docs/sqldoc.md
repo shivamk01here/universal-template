@@ -363,3 +363,60 @@ INSERT INTO `page_sections` (`page_slug`, `section_slug`, `layout_template`, `ti
 
 alter table page_sections add column image varchar(255) after bg_color;
 	
+
+
+
+
+
+
+
+
+
+<!-- 
+ -->
+ --
+CREATE TABLE `homepages` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT 0,
+  `is_default` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `homepages`
+--
+INSERT INTO `homepages` (`id`, `name`, `is_active`, `is_default`) VALUES
+(1, 'Default App Landing Page', 1, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `homepage_sections`
+--
+CREATE TABLE `homepage_sections` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `homepage_id` int(10) UNSIGNED NOT NULL,
+  `section_slug` varchar(100) NOT NULL,
+  `template_id` varchar(100) NOT NULL,
+  `display_order` int(11) NOT NULL DEFAULT 0,
+  `content` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`content`)),
+  `is_visible` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` timestamp NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `homepage_sections`
+--
+INSERT INTO `homepage_sections` (`id`, `homepage_id`, `section_slug`, `template_id`, `display_order`, `content`, `is_visible`) VALUES
+(1, 1, 'hero', 'template-1', 0, '{\"heading\":\"High Converting Heading Comes Here\",\"subheading\":\"Hook your visitors instantly with a clear headline, value prop, and a visually engaging image to create a powerful first impression.\",\"primary_cta_text\":\"Get Started Now\",\"primary_cta_link\":\"#\",\"primary_cta_bg_color\":\"#4f46e5\",\"secondary_cta_text\":\"Contact Sales\",\"secondary_cta_link\":\"#\",\"secondary_cta_bg_color\":\"#4b5563\",\"main_image_url\":\"https://placehold.co/600x400/e2e8f0/64748b?text=Feature+Image\",\"bg_color\":\"#ffffff\",\"bg_image_url\":\"\"}', 1),
+(2, 1, 'partners', 'template-1', 1, '{\"heading\":\"WE ARE PARTNERED WITH AMAZING COMPANIES\",\"logos\":[\"https://placehold.co/100x50/cccccc/969696?text=Logo1\",\"https://placehold.co/100x50/cccccc/969696?text=Logo2\",\"https://placehold.co/100x50/cccccc/969696?text=Logo3\",\"https://placehold.co/100x50/cccccc/969696?text=Logo4\",\"https://placehold.co/100x50/cccccc/969696?text=Logo5\"],\"bg_color\":\"#f9fafb\",\"bg_image_url\":\"\"}', 1),
+(3, 1, 'features', 'template-1', 2, '{\"heading\":\"Discover Our Amazing Features\",\"subheading\":\"Our platform is packed with features designed to boost your productivity and streamline your workflow.\",\"features\":[{\"title\":\"Real-Time Collaboration\",\"description\":\"Work with your team in real-time. Changes are synced instantly across all devices.\",\"image_url\":\"https://placehold.co/500x300/e2e8f0/64748b?text=Feature+1\"},{\"title\":\"Advanced Analytics\",\"description\":\"Gain valuable insights with our advanced analytics dashboard. Track your progress and make data-driven decisions.\",\"image_url\":\"https://placehold.co/500x300/e2e8f0/64748b?text=Feature+2\"}],\"bg_color\":\"#ffffff\",\"bg_image_url\":\"\"}', 1),
+(4, 1, 'testimonials', 'template-1', 4, '{\"heading\":\"What People Say About Us\",\"subheading\":\"Let happy users convince the rest. Social proof is a powerful tool to build trust and credibility.\",\"bg_color\":\"#f9fafb\",\"bg_image_url\":\"\"}', 1),
+(5, 1, 'faq', 'template-1', 6, '{\"heading\":\"Frequently Asked Questions\",\"subheading\":\"Address common concerns to eliminate friction and make the decision to sign up an easy one.\",\"bg_color\":\"#ffffff\",\"bg_image_url\":\"\"}', 1),
+(6, 1, 'cta', 'template-1', 8, '{\"heading\":\"Get Started with Our App Today!\",\"subheading\":\"Wrap up with a powerful final call to action. This is your last chance to convert a visitor into a customer.\",\"primary_cta_text\":\"Sign Up For Free\",\"primary_cta_link\":\"#\",\"primary_cta_bg_color\":\"#4f46e5\",\"bg_color\":\"#f3f4f6\",\"bg_image_url\":\"\"}', 1),
+(7, 1, 'blog', 'template-1', 7, '{\"heading\":\"From Our Blog\",\"subheading\":\"Stay updated with the latest industry trends, tips, and company news.\",\"bg_color\":\"#ffffff\",\"bg_image_url\":\"\"}', 1),
+(8, 1, 'products', 'template-1', 3, '{\"heading\":\"Check Out Our Products\",\"subheading\":\"We have a wide range of products that are designed to meet your needs.\",\"bg_color\":\"#ffffff\",\"bg_image_url\":\"\"}', 1),
+(9, 1, 'services', 'template-1', 5, '{\"heading\":\"Services We Offer\",\"subheading\":\"Our services are designed to help you achieve your goals and grow your business.\",\"bg_color\":\"#f9fafb\",\"bg_image_url\":\"\"}', 1),
+(10, 1, 'hero', 'template-2', 9, '{\"heading\":\"Another Powerful Headline\",\"subheading\":\"This is a different hero layout with a centered approach, perfect for impactful statements.\",\"primary_cta_text\":\"Explore Features\",\"primary_cta_link\":\"#features\",\"primary_cta_bg_color\":\"#db2777\",\"bg_color\":\"#111827\",\"bg_image_url\":\"https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80\"}', 0),
+(11, 1, 'hero', 'template-3', 10, '{\"heading\":\"Simple, Elegant, Effective.\",\"subheading\":\"A clean and minimal hero section that puts all the focus on your message.\",\"primary_cta_text\":\"Learn More\",\"primary_cta_link\":\"#\",\"primary_cta_bg_color\":\"#16a34a\",\"bg_color\":\"#f1f5f9\",\"bg_image_url\":\"\"}', 0);

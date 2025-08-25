@@ -62,7 +62,7 @@ class AuthController extends Controller
             'password' => 'required|string|min:8|confirmed',
         ]);
 
-        $otp = '5454'; // Static OTP for now
+        $otp = '545454'; // Static OTP for now
 
         // Store registration data in the session temporarily
         $request->session()->put('registration_data', [

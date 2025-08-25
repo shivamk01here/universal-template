@@ -1,347 +1,336 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_','-', app()->getLocale()) }}">
+<html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $siteSettings['site_name'] ?? config('app.name','Laravel') }} | Register</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
-    <style>
-        :root {
-            --primary-color: {{ $siteSettings['primary_color'] ?? '#374151' }};
-            --secondary-color: {{ $siteSettings['secondary_color'] ?? '#6b7280' }};
-            --button-color: {{ $siteSettings['button_color'] ?? '#1f2937' }};
-            --background-color: {{ $siteSettings['background_color'] ?? '#ffffff' }};
-            --glass-bg-light: rgba(255,255,255,0.80);
-            --glass-bg-dark: rgba(55,65,81,0.75);
-        }
-        [data-theme="dark"] {
-            --bg: #111827;
-            --text: #F3F4F6;
-            --glass-bg: var(--glass-bg-dark);
-            --gradient-bg: linear-gradient(135deg, #232526 0%, #414345 100%);
-        }
-        [data-theme="light"] {
-            --bg: #f9fafb;
-            --text: #22223b;
-            --glass-bg: var(--glass-bg-light);
-            --gradient-bg: linear-gradient(135deg, #f3f4f6 0%, #e0e7ff 100%);
-        }
-        body {
-            font-family: 'Figtree', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial;
-            background: var(--gradient-bg);
-            color: var(--text);
-            min-height: 100vh;
-            transition: background 0.3s;
-        }
-        .glass-card {
-            background: var(--glass-bg);
-            box-shadow: 0 8px 32px 0 rgba(31,38,135,0.11);
-            border-radius: 2rem;
-            border: 1.5px solid rgba(255,255,255,0.24);
-            backdrop-filter: blur(12px) saturate(115%);
-            -webkit-backdrop-filter: blur(12px) saturate(115%);
-        }
-        .theme-toggle {
-            border: none;
-            outline: none;
-            background: none;
-            font-size: 1.4rem;
-            color: var(--text);
-            padding: 0.4rem 0.65rem;
-            border-radius: 9999px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .theme-toggle:hover {
-            background: rgba(0,0,0,0.05);
-        }
-        .form-error {
-            border-color: #ef4444 !important;
-            background: #fef2f2 !important;
-        }
-        .error-msg { color: #dc2626; font-size: 13px; margin-top: 2px; }
-        ::selection { background: #e0e7ff; }
-        [data-theme="dark"] ::selection { background: #232526; }
-        .card-border {
-            border: 2px solid rgba(120, 120, 120, 0.09);
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Register</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; background: #f9fafb; }
+    .blur-lg { filter: blur(8px);}
+    .form-error { border-color: #ef4444 !important; background: #fef2f2 !important; animation: shake .17s;}
+    @keyframes shake {
+      25% {transform: translateX(-2px);}
+      50% {transform: translateX(2px);}
+      100%{transform: translateX(0);}
+    }
+    .modal-bg { background: rgba(0,0,0,0.35); }
+    .quote-carousel {
+      bottom: 4%; left: 50%;
+      transform: translateX(-50%);
+      position: absolute;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .quote-text {
+      color: #6b7280;
+      font-size: 1.05rem;
+      font-weight: 500;
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.7s;
+      position: absolute;
+      width: 90%; left: 5%;
+      pointer-events: none;
+    }
+    .quote-text.active { opacity: 1; position: relative; }
+  </style>
 </head>
-<body data-theme="">
+<body class="min-h-screen w-full flex bg-gray-100">
 
-    <!-- Theme Toggle -->
-    <button id="themeToggleBtn"
-        aria-label="Toggle theme"
-        class="theme-toggle absolute top-5 right-5 z-50"
-        title="Toggle light/dark mode">
-        <i class="fa-solid fa-moon hidden" id="themeMoon"></i>
-        <i class="fa-solid fa-sun hidden" id="themeSun"></i>
-    </button>
+<!-- Already registered message (hidden by default, toggle in JS if needed) -->
+<div id="alreadyRegisteredMsg" class="hidden fixed inset-0 flex items-center justify-center z-40 bg-white">
+  <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-200 text-center">
+    <div class="text-3xl mb-2 text-green-700"><i class="fa-solid fa-circle-check"></i></div>
+    <div class="text-lg font-semibold mb-2">You're already registered!</div>
+    <div class="mb-4 text-sm text-gray-600">Go to home.</div>
+    <a href="/" class="bg-gray-800 text-white px-6 py-2 rounded font-medium hover:bg-gray-900">Home</a>
+  </div>
+</div>
 
-    <div class="min-h-screen flex items-center justify-center py-12 px-4 md:px-0">
-        <div class="w-full max-w-4xl grid md:grid-cols-2 gap-8">
-            <!-- Left Brand Section -->
-            <div class="glass-card hidden md:flex flex-col justify-center items-center py-16 px-10 card-border select-none text-center">
-                <span class="mb-4">
-                    <i class="fa-solid fa-user-astronaut text-4xl text-primary-dynamic"></i>
-                </span>
-                <h2 class="font-extrabold text-3xl mb-2 tracking-tight">
-                    Hey! Join {{ $siteSettings['site_name'] ?? config('app.name','Our Company') }}
-                </h2>
-                <p class="text-md font-medium text-gray-500 dark:text-gray-300 max-w-xs mx-auto mb-5">
-                    Create your account and be a part of our awesome community.<br>
-                    Quick, secure, and always in style.<br>
-                    <span class="text-xs block mt-3 opacity-70">
-                        “{{ $siteSettings['site_description'] ?? 'Your journey starts with us.' }}”
-                    </span>
-                </p>
-                <img src="https://i.imgur.com/ZWnhY9F.png" alt="Register Illustration" class="w-32 mx-auto rounded-xl ring-1 ring-gray-200 shadow-md opacity-80">
-            </div>
-
-            <!-- Registration Form Section -->
-            <div class="glass-card relative z-10 p-8 sm:p-10 flex flex-col justify-center card-border">
-
-                <div class="mb-4 text-center md:text-left">
-                    <div class="inline-flex items-center justify-center mb-2 p-2 rounded-full bg-primary-dynamic/20">
-                        <i class="fa-solid fa-user-plus text-lg text-primary-dynamic"></i>
-                    </div>
-                    <h1 class="text-xl font-bold sm:text-2xl">Create a new account</h1>
-                    <p class="text-xs text-gray-500 dark:text-gray-300">Join us in seconds. It’s fast and secure.</p>
-                </div>
-
-                <!-- Flash messages from backend -->
-                @if (session('success'))
-                    <div class="mb-4 rounded-lg border border-emerald-200 bg-emerald-50/80 p-3 text-sm text-emerald-800">
-                        {{ session('success') }}
-                    </div>
-                @endif
-                @if (session('error'))
-                    <div class="mb-4 rounded-lg border border-rose-200 bg-rose-50/80 p-3 text-sm text-rose-800">
-                        {{ session('error') }}
-                    </div>
-                @endif
-                @if (session('info'))
-                    <div class="mb-4 rounded-lg border border-sky-200 bg-sky-50/80 p-3 text-sm text-sky-800">
-                        {{ session('info') }}
-                    </div>
-                @endif
-
-                <!-- Validation errors from backend -->
-                @if ($errors->any())
-                    <div class="mb-4 rounded-lg border border-rose-200 bg-rose-50/80 p-3 text-sm text-rose-800">
-                        <ul class="list-inside list-disc space-y-1">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
-
-                <!-- Register Form -->
-                <form id="register-form" action="{{ route('register') }}" method="POST" novalidate autocomplete="off" class="space-y-5">
-                    @csrf
-                    <div class="space-y-4">
-                        <div>
-                            <label for="name" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Full Name</label>
-                            <input
-                                id="name"
-                                name="name"
-                                type="text"
-                                required
-                                value="{{ old('name') }}"
-                                class="register-input block w-full rounded-lg border border-gray-300/60 bg-white/80 dark:bg-gray-800/60 px-4 py-3 text-base text-gray-900 dark:text-gray-200 placeholder:text-gray-400 shadow-sm focus:border-primary-dynamic focus:ring-2 focus:ring-primary-dynamic/15 transition"
-                                placeholder="John Doe"
-                                autocomplete="off"
-                            />
-                            <span class="error-msg hidden" id="nameError"></span>
-                        </div>
-                        <div>
-                            <label for="email" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Email address</label>
-                            <input
-                                id="email"
-                                name="email"
-                                type="email"
-                                autocomplete="email"
-                                required
-                                value="{{ old('email') }}"
-                                class="register-input block w-full rounded-lg border border-gray-300/60 bg-white/80 dark:bg-gray-800/60 px-4 py-3 text-base text-gray-900 dark:text-gray-200 placeholder:text-gray-400 shadow-sm focus:border-primary-dynamic focus:ring-2 focus:ring-primary-dynamic/15 transition"
-                                placeholder="you@example.com"
-                                autocomplete="off"
-                            />
-                            <span class="error-msg hidden" id="emailError"></span>
-                        </div>
-                        <div>
-                            <label for="password" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Password</label>
-                            <div class="relative">
-                                <input
-                                    id="password"
-                                    name="password"
-                                    type="password"
-                                    autocomplete="new-password"
-                                    required
-                                    class="register-input block w-full rounded-lg border border-gray-300/60 bg-white/80 dark:bg-gray-800/60 px-4 py-3 pr-11 text-base text-gray-900 dark:text-gray-200 placeholder:text-gray-400 shadow-sm focus:border-primary-dynamic focus:ring-2 focus:ring-primary-dynamic/15 transition"
-                                    placeholder="••••••••"
-                                    minlength="6"
-                                />
-                                <button type="button" aria-label="Toggle password visibility"
-                                        class="absolute inset-y-0 right-0 grid w-10 place-items-center text-gray-500 hover:text-gray-700"
-                                        onclick="const i=this.previousElementSibling;i.type=i.type==='password'?'text':'password';this.querySelector('i').classList.toggle('fa-eye');this.querySelector('i').classList.toggle('fa-eye-slash');">
-                                    <i class="fa-solid fa-eye-slash text-sm"></i>
-                                </button>
-                            </div>
-                            <span class="error-msg hidden" id="passwordError"></span>
-                        </div>
-                        <div>
-                            <label for="password_confirmation" class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Confirm Password</label>
-                            <div class="relative">
-                                <input
-                                    id="password_confirmation"
-                                    name="password_confirmation"
-                                    type="password"
-                                    autocomplete="new-password"
-                                    required
-                                    class="register-input block w-full rounded-lg border border-gray-300/60 bg-white/80 dark:bg-gray-800/60 px-4 py-3 pr-11 text-base text-gray-900 dark:text-gray-200 placeholder:text-gray-400 shadow-sm focus:border-primary-dynamic focus:ring-2 focus:ring-primary-dynamic/15 transition"
-                                    placeholder="••••••••"
-                                    minlength="6"
-                                />
-                                <button type="button" aria-label="Toggle confirm password visibility"
-                                        class="absolute inset-y-0 right-0 grid w-10 place-items-center text-gray-500 hover:text-gray-700"
-                                        onclick="const i=this.previousElementSibling;i.type=i.type==='password'?'text':'password';this.querySelector('i').classList.toggle('fa-eye');this.querySelector('i').classList.toggle('fa-eye-slash');">
-                                    <i class="fa-solid fa-eye-slash text-sm"></i>
-                                </button>
-                            </div>
-                            <span class="error-msg hidden" id="confirmError"></span>
-                        </div>
-                    </div>
-                    <div class="pt-2">
-                        <button
-                            id="registerBtn"
-                            type="submit"
-                            class="inline-flex w-full items-center justify-center rounded-lg bg-button-dynamic px-5 py-3 text-base font-medium text-white shadow-sm transition hover:bg-primary-dynamic hover:shadow-md"
-                        >
-                            <i class="fa-solid fa-user-check mr-2 text-sm"></i>
-                            Register
-                        </button>
-                    </div>
-                    <p class="pt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-                        Already have an account?
-                        <a href="{{ route('login') }}" class="font-medium text-primary-dynamic hover:underline">Sign in</a>
-                    </p>
-                </form>
-            </div>
+<!-- MAIN PAGE CONTENT -->
+<div id="mainContent" class="relative flex w-full h-screen min-h-screen transition duration-300">
+  <!-- Left: Registration Form -->
+  <div class="w-full md:w-[40%] h-full flex items-center justify-center bg-white relative z-10">
+    <form id="register-form" class="w-full max-w-sm space-y-6" novalidate autocomplete="off">
+      @csrf
+      <div class="flex flex-col items-center">
+        <span class="rounded-full p-3 mb-3 bg-gray-100 shadow">
+          <i class="fa-solid fa-user text-xl text-slate-800"></i>
+        </span>
+        <h2 class="text-2xl font-bold text-slate-900 text-center mb-1">Create an Account</h2>
+        <p class="text-gray-500 text-center text-sm mb-2">Welcome! Please fill in your information.</p>
+      </div>
+      <div class="space-y-4">
+        <div>
+          <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+              <i class="fa-solid fa-user"></i>
+            </span>
+            <input id="name" name="name" type="text" required
+                   class="pl-10 pr-4 py-2 w-full rounded-lg border border-gray-300 bg-gray-50 text-gray-900 outline-none focus:border-slate-700 transition"
+                   placeholder="Jane Smith" autocomplete="off" />
+          </div>
+          <span id="nameError" class="hidden text-xs text-red-500 mt-1"></span>
         </div>
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+              <i class="fa-solid fa-envelope"></i>
+            </span>
+            <input id="email" name="email" type="email" required
+                   class="pl-10 pr-4 py-2 w-full rounded-lg border border-gray-300 bg-gray-50 text-gray-900 outline-none focus:border-slate-700 transition"
+                   placeholder="you@email.com" autocomplete="off" />
+          </div>
+          <span id="emailError" class="hidden text-xs text-red-500 mt-1"></span>
+        </div>
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+              <i class="fa-solid fa-lock"></i>
+            </span>
+            <input id="password" name="password" type="password" minlength="8" required
+                   class="pl-10 pr-10 py-2 w-full rounded-lg border border-gray-300 bg-gray-50 text-gray-900 outline-none focus:border-slate-700 transition"
+                   placeholder="••••••••" />
+            <button type="button" aria-label="Show password"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    onclick="togglePass('password', this)">
+              <i class="fa-solid fa-eye-slash"></i>
+            </button>
+          </div>
+          <span id="passwordError" class="hidden text-xs text-red-500 mt-1"></span>
+        </div>
+        <div>
+          <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+              <i class="fa-solid fa-lock"></i>
+            </span>
+            <input id="password_confirmation" name="password_confirmation" type="password" minlength="8" required
+                   class="pl-10 pr-10 py-2 w-full rounded-lg border border-gray-300 bg-gray-50 text-gray-900 outline-none focus:border-slate-700 transition"
+                   placeholder="••••••••" />
+            <button type="button" aria-label="Show confirm password"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    onclick="togglePass('password_confirmation', this)">
+              <i class="fa-solid fa-eye-slash"></i>
+            </button>
+          </div>
+          <span id="confirmError" class="hidden text-xs text-red-500 mt-1"></span>
+        </div>
+      </div>
+      <button id="registerBtn" type="submit"
+              class="w-full py-2 rounded-lg font-semibold text-white bg-slate-900 hover:bg-slate-800 transition text-base flex items-center justify-center gap-2 mt-1">
+        <i class="fa-solid fa-user-check"></i> Register
+      </button>
+      <div class="flex flex-col gap-2 items-center mt-1">
+        <div class="text-sm text-slate-600">
+          Already have an account?
+          <a href="{{ route('login') }}" class="font-semibold text-slate-900 hover:underline">Sign in</a>
+        </div>
+      </div>
+      <span id="registerServerError" class="hidden text-xs text-red-500"></span>
+    </form>
+  </div>
+  <!-- Right: Image desktop only, now moved to right side -->
+  <div class="hidden md:flex md:w-[60%] h-full relative">
+    <img src="/neon-race.jpg" alt="Neon Race"
+         class="w-full h-full object-cover object-center absolute inset-0"/>
+    <div class="absolute inset-0 bg-black opacity-40"></div>
+    <div class="quote-carousel">
+      <span class="quote-text active">"The journey of a thousand miles begins with a single step."</span>
+      <span class="quote-text">"Success is not final, failure is not fatal: It is the courage to continue that counts."</span>
+      <span class="quote-text">"Believe you can and you're halfway there."</span>
     </div>
-    <!-- Toast root (do not remove if your app.js uses it) -->
-    <div id="toast-root" class="pointer-events-none fixed top-4 right-4 z-[60] flex w-auto max-w-full flex-col gap-3"></div>
+  </div>
+</div>
 
-    <!-- Include your OTP modal here if you use one, unchanged. -->
-    @include('auth.partials.otp-modal')
+<!-- OTP Modal -->
+<div id="otpModalBg" class="modal-bg fixed inset-0 hidden z-50 flex items-center justify-center">
+  <div class="absolute inset-0">
+    <img src="/neon-race.jpg"
+         alt="Neon Race BG" class="w-full h-full object-cover opacity-40 blur-sm">
+    <div class="absolute inset-0 bg-black opacity-40"></div>
+  </div>
+  <div class="relative z-10 bg-white/60 backdrop-blur-xl rounded-2xl shadow-xl p-6 w-full max-w-sm mx-4 animate-fadeIn border border-white/30">
+    <button class="absolute top-3 right-3 text-gray-400 hover:text-gray-600" onclick="closeOtpModal()">
+      <i class="fa-solid fa-xmark text-lg"></i>
+    </button>
+    <h3 class="text-lg font-semibold text-gray-800 mb-4">Enter OTP sent to your email</h3>
+    <form id="otpForm" autocomplete="off" class="space-y-4">
+      <input type="text" maxlength="6" pattern="\d*" inputmode="numeric" id="otpInput" required
+             class="w-full text-center text-lg tracking-widest rounded-lg border border-gray-300 px-3 py-2 bg-gray-50 focus:border-gray-700 focus:bg-white outline-none"
+             placeholder="••••••" />
+      <button type="submit"
+              class="w-full py-2.5 rounded-lg text-white font-medium bg-gray-800 hover:bg-gray-900 transition flex justify-center items-center gap-2">
+        <i class="fa-solid fa-check"></i> Verify
+      </button>
+    </form>
+    <div id="otpError" class="hidden text-red-600 text-sm mt-3"></div>
+  </div>
+</div>
 
-    <script>
-        // THEME JS
-        function setTheme(theme) {
-            document.body.setAttribute("data-theme", theme);
-            localStorage.setItem('theme', theme);
-            document.getElementById('themeMoon').classList.toggle('hidden', theme !== 'dark');
-            document.getElementById('themeSun').classList.toggle('hidden', theme !== 'light');
+<script>
+function togglePass(field, btn) {
+  const inp = document.getElementById(field);
+  const icon = btn.querySelector('i');
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    icon.classList.replace('fa-eye-slash','fa-eye');
+  } else {
+    inp.type = 'password';
+    icon.classList.replace('fa-eye','fa-eye-slash');
+  }
+}
+
+function openOtpModal(){
+  document.getElementById('otpModalBg').classList.remove('hidden');
+  document.getElementById('mainContent').classList.add('blur-lg');
+  setTimeout(()=>{document.getElementById('otpInput').focus()},220);
+}
+function closeOtpModal(){
+  document.getElementById('otpModalBg').classList.add('hidden');
+  document.getElementById('mainContent').classList.remove('blur-lg');
+}
+document.addEventListener('DOMContentLoaded', function() {
+  // Quotes carousel
+  const quotes = document.querySelectorAll('.quote-text');
+  let idx = 0;
+  setInterval(()=>{
+    quotes.forEach(q=>q.classList.remove('active'));
+    idx = (idx+1)%quotes.length;
+    quotes[idx].classList.add('active');
+  }, 3400);
+
+  // Registration validation (errors only on blur or submit)
+  const form = document.getElementById('register-form');
+  const name = document.getElementById('name');
+  const email = document.getElementById('email');
+  const password = document.getElementById('password');
+  const confirm = document.getElementById('password_confirmation');
+  const btn = document.getElementById('registerBtn');
+  const nameErr = document.getElementById('nameError'),
+        emailErr = document.getElementById('emailError'),
+        passErr = document.getElementById('passwordError'),
+        confErr = document.getElementById('confirmError'),
+        serverErr = document.getElementById('registerServerError');
+  let touched = {name: false, email: false, password: false, confirm: false};
+  let submitted = false;
+
+  function validate(){
+    let v=true;
+    if((touched.name||submitted) && name.value.trim().length<2){showErr(name,"Please enter your full name.",nameErr);v=false;} else hideErr(name,nameErr);
+    let mail=/^[^@\s]+@[^@\s]+\.[a-zA-Z]{2,}$/;
+    if((touched.email||submitted) && !mail.test(email.value.trim())){showErr(email,"Enter a valid email address.",emailErr);v=false;} else hideErr(email,emailErr);
+    if((touched.password||submitted) && password.value.length<8){showErr(password,"At least 8 characters.",passErr);v=false;} else hideErr(password,passErr);
+    if((touched.confirm||submitted) && (confirm.value!==password.value||confirm.value.length<8)){showErr(confirm,"Passwords do not match.",confErr);v=false;} else hideErr(confirm,confErr);
+    btn.disabled=!v; btn.classList.toggle('opacity-60',!v);
+    return v;
+  }
+  function showErr(input,msg,ele){ input.classList.add('form-error'); ele.textContent=msg; ele.classList.remove('hidden'); }
+  function hideErr(input,ele){ input.classList.remove('form-error'); ele.textContent=""; ele.classList.add('hidden'); }
+
+  name.addEventListener('blur',()=>{touched.name=true;validate();});
+  email.addEventListener('blur',()=>{touched.email=true;validate();});
+  password.addEventListener('blur',()=>{touched.password=true;validate();});
+  confirm.addEventListener('blur',()=>{touched.confirm=true;validate();});
+  [name,email,password,confirm].forEach(i=>{i.addEventListener('input',validate);});
+
+  // AJAX Registration submit
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    serverErr.classList.add('hidden');
+    submitted=true;
+    if(!validate()) return;
+    btn.disabled = true;
+    btn.classList.add('opacity-60');
+    // send registration POST
+    fetch('{{ route('register') }}', {
+      method: 'POST',
+      headers: {
+        'Content-Type':'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+      },
+      body: JSON.stringify({
+        name: name.value,
+        email: email.value,
+        password: password.value,
+        password_confirmation: confirm.value
+      })
+    }).then(async resp=> {
+      btn.disabled = false;
+      btn.classList.remove('opacity-60');
+      if(resp.ok) {
+        // always triggers OTP modal on success
+        openOtpModal();
+        hideErr(name,nameErr);hideErr(email,emailErr);hideErr(password,passErr);hideErr(confirm,confErr);
+        form.reset();
+      } else {
+        let data = await resp.json();
+        if(data?.errors){
+          if(data.errors.name) { showErr(name, data.errors.name[0], nameErr); }
+          if(data.errors.email) { showErr(email, data.errors.email[0], emailErr);}
+          if(data.errors.password) { showErr(password, data.errors.password[0], passErr);}
+          if(data.errors.password_confirmation) { showErr(confirm, data.errors.password_confirmation[0], confErr);}
+        } else {
+          serverErr.textContent = data.message || "Registration failed.";
+          serverErr.classList.remove('hidden');
         }
-        function toggleTheme() {
-            const curr = document.body.getAttribute("data-theme") || "light";
-            setTheme(curr === "dark" ? "light" : "dark");
-        }
-        document.getElementById('themeToggleBtn').onclick = toggleTheme;
-        (function(){
-            let theme = localStorage.getItem('theme');
-            if(!theme) theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-            setTheme(theme);
-        })();
+      }
+    })
+    .catch(()=>{
+      btn.disabled = false;
+      btn.classList.remove('opacity-60');
+      serverErr.textContent = "Registration failed.";
+      serverErr.classList.remove('hidden');
+    });
+  });
 
-        // FRONTEND VALIDATION (stays simple; blade validation still works)
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('register-form');
-            const name = document.getElementById('name');
-            const email = document.getElementById('email');
-            const password = document.getElementById('password');
-            const confirm = document.getElementById('password_confirmation');
-            const btn = document.getElementById('registerBtn');
+  // OTP verify step
+  document.getElementById('otpForm').addEventListener('submit',function(e) {
+    e.preventDefault();
+    let input=document.getElementById('otpInput').value;
+    let err=document.getElementById('otpError');
+    err.classList.add('hidden');
+    if(!/^\d{6}$/.test(input)){
+      err.textContent="Please enter a valid 6-digit OTP.";
+      err.classList.remove('hidden');
+      return;
+    }
+    // send AJAX for OTP verification
+    fetch('{{ route('register.verify') }}', {
+      method: 'POST',
+      headers: {
+        'Content-Type':'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+      },
+      body: JSON.stringify({ otp: input })
+    }).then(async resp=>{
+      let data = await resp.json();
+      if(resp.ok && data?.redirect_url){
+        window.location.href = data.redirect_url;
+      } else if(data?.error) {
+        err.textContent = data.error;
+        err.classList.remove('hidden');
+      } else {
+        err.textContent = "Invalid OTP.";
+        err.classList.remove('hidden');
+      }
+    }).catch(()=>{
+      err.textContent = "Something went wrong.";
+      err.classList.remove('hidden');
+    });
+  });
 
-            const nameErr = document.getElementById('nameError');
-            const emailErr = document.getElementById('emailError');
-            const passErr = document.getElementById('passwordError');
-            const confErr = document.getElementById('confirmError');
-
-            // Mini functions for error visibility
-            function showErr(input, msg, ele) {
-                input.classList.add('form-error');
-                ele.textContent = msg;
-                ele.classList.remove('hidden');
-            }
-            function hideErr(input, ele) {
-                input.classList.remove('form-error');
-                ele.textContent = "";
-                ele.classList.add('hidden');
-            }
-
-            function validate() {
-                let v = true;
-
-                // NAME
-                if(name.value.trim().length < 2) {
-                    showErr(name, "Please enter your full name.", nameErr);
-                    v = false;
-                } else {
-                    hideErr(name, nameErr);
-                }
-
-                // EMAIL
-                let mailPattern = /^[^@\s]+@[^@\s]+\.[a-zA-Z]{2,}$/;
-                if(!mailPattern.test(email.value.trim())) {
-                    showErr(email, "Enter a valid email address.", emailErr);
-                    v = false;
-                } else {
-                    hideErr(email, emailErr);
-                }
-
-                // PASSWORD
-                if(password.value.length < 6) {
-                    showErr(password, "Password must be at least 6 characters.", passErr);
-                    v = false;
-                } else {
-                    hideErr(password, passErr);
-                }
-
-                // CONFIRM
-                if(confirm.value !== password.value || confirm.value.length < 6) {
-                    showErr(confirm, "Passwords do not match.", confErr);
-                    v = false;
-                } else {
-                    hideErr(confirm, confErr);
-                }
-
-                btn.disabled = !v;
-                btn.style.opacity = !v ? 0.5 : 1;
-                return v;
-            }
-            // Live validation
-            [name, email, password, confirm].forEach(i=>{
-                i.addEventListener('input', validate);
-                i.addEventListener('blur', validate);
-            });
-
-            // Form submit: block if not valid
-            form.addEventListener('submit', function(e){
-                if(!validate()) {
-                    e.preventDefault();
-                }
-            });
-        });
-    </script>
-
-    {{-- If you have custom.js or app.js, do not duplicate toasts/OTP/modal logic here! --}}
-    <script src="{{ asset('js/app.js') }}"></script>
+  window.addEventListener('keydown',e=>{if(e.key==="Escape")closeOtpModal();});
+});
+</script>
 </body>
 </html>

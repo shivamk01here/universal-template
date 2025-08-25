@@ -50,6 +50,7 @@
                 <a href="{{ route('admin.faqs.index') }}" class="flex items-center px-4 py-2 rounded hover:bg-gray-700"><i class="fas fa-question-circle mr-3"></i> FAQs</a>
                 <a href="{{ route('admin.static-pages.index') }}" class="flex items-center px-4 py-2 rounded hover:bg-gray-700"><i class="fas fa-book mr-3"></i> Static Pages</a>
                 <a href="{{ route('admin.testimonials.index') }}" class="flex items-center px-4 py-2 rounded hover:bg-gray-700"><i class="fas fa-comment-dots mr-3"></i> Testimonials</a>
+                <a href="{{ route('admin.homepage-sections.index') }}" class="flex items-center px-4 py-2 rounded hover:bg-gray-700"><i class="fas fa-file-alt mr-3"></i>Homepage Sections NEW</a>
                 <a href="{{ route('home') }}" target="_blank" class="flex items-center px-4 py-2 rounded hover:bg-gray-700"><i class="fas fa-globe mr-3"></i> View Site</a>
             </nav>
             <div class="px-8 py-4">

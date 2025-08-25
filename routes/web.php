@@ -20,6 +20,7 @@ use App\Http\Controllers\Frontend\AccountController;
 use App\Http\Controllers\Admin\TestimonialController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Admin\HomepageSectionController;   
+use App\Http\Controllers\Admin\HomepageController;
 
 
 /*
@@ -68,6 +69,21 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/register', [AuthController::class, 'showRegistrationForm'])->name('register')->middleware('guest');
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
+
+
+
+
+
+Route::get('/homepage-sections', [HomepageController::class, 'index'])->name('homepage-sections.index');
+Route::get('/homepage-sections/create', [HomepageController::class, 'create'])->name('homepage-sections.create');
+Route::post('/homepage-sections', [HomepageController::class, 'store'])->name('homepage-sections.store');
+Route::get('/homepage-sections/{id}/edit', [HomepageController::class, 'edit'])->name('homepage-sections.edit');
+Route::put('/homepage-sections/{id}', [HomepageController::class, 'update'])->name('homepage-sections.update');
+Route::delete('/homepage-sections/{id}', [HomepageController::class, 'destroy'])->name('homepage-sections.destroy');
+
+// Custom Action Routes
+Route::post('/homepage-sections/reorder', [HomepageController::class, 'updateOrder'])->name('homepage-sections.reorder');
+Route::post('/homepage-sections/{id}/visibility', [HomepageController::class, 'toggleVisibility'])->name('homepage-sections.visibility');
 
 
 // == ADMIN ROUTES ==
