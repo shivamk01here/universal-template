@@ -142,6 +142,8 @@
 
                 <!-- Desktop nav -->
                 <nav class="hidden lg:flex items-center gap-6" aria-label="Primary">
+                    
+                    <a href="{{ route('custom') }}" class="block rounded-lg px-3 py-2 text-sm font-medium theme-text-secondary hover:theme-bg-tertiary">Custom</a>
                     <a href="{{ route('home') }}" class="nav-link text-sm theme-text-muted hover:theme-text-primary focus-ring">Home</a>
                     <a href="{{ route('items.index') }}" class="nav-link text-sm theme-text-muted hover:theme-text-primary focus-ring">Services & Products</a>
                     <a href="{{ route('blogs.index') }}" class="nav-link text-sm theme-text-muted hover:theme-text-primary focus-ring">Blog</a>
@@ -243,6 +245,7 @@
             <!-- Mobile menu -->
             <div id="mobile-menu" class="lg:hidden hidden border-t theme-border theme-backdrop-blur backdrop-blur">
                 <div class="px-4 py-4 space-y-1">
+                    <a href="{{ route('custom') }}" class="block rounded-lg px-3 py-2 text-sm font-medium theme-text-secondary hover:theme-bg-tertiary">Custom</a>
                     <a href="{{ route('home') }}" class="block rounded-lg px-3 py-2 text-sm font-medium theme-text-secondary hover:theme-bg-tertiary">Home</a>
                     <a href="{{ route('items.index') }}" class="block rounded-lg px-3 py-2 text-sm font-medium theme-text-secondary hover:theme-bg-tertiary">Services & Products</a>
                     <a href="{{ route('blogs.index') }}" class="block rounded-lg px-3 py-2 text-sm font-medium theme-text-secondary hover:theme-bg-tertiary">Blog</a>
