@@ -21,6 +21,7 @@
                 <p class="text-gray-600 italic">"{{ $testimonial->quote }}"</p>
             </div>
             @endforeach
+            
         </div>
     </div>
 </section>
