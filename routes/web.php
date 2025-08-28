@@ -34,19 +34,13 @@ use App\Http\Controllers\Admin\HomepageController;
 |
 */
 
-// == PUBLIC/FRONTEND ROUTES ==
-
-// Homepage
 Route::get('/', [HomeController::class, 'index'])->name('home');
-
 Route::get('/custom', [HomeController::class, 'custom'])->name('custom');
-
 
 Route::get('/error', function() {
     return back()->with('error', 'This is a test error message');
 });
 
-// Item/Product/Service Listing and Detail Pages
 Route::get('/items', [ItemController::class, 'index'])->name('items.index');
 Route::get('/items/{slug}', [ItemController::class, 'show'])->name('items.show');
 Route::get('/categories/{slug}', [ItemController::class, 'indexByCategory'])->name('items.category');
@@ -62,7 +56,6 @@ Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.in
 Route::post('/checkout/place-order', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
 Route::get('/order-success', [CheckoutController::class, 'success'])->name('checkout.success');
 
-
 // Auth Routes (Login, Register, Logout)
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login')->middleware('guest');
 Route::post('/login', [AuthController::class, 'login']);
@@ -72,20 +65,16 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 
 
 // == ADMIN ROUTES ==
-// All routes in this group are prefixed with /admin and require the user to be an admin
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-
     // Site Settings
     Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
     Route::post('/settings', [AdminController::class, 'updateSettings'])->name('settings.update');
-
     // Page Content Management
     Route::get('/pages', [AdminController::class, 'managePages'])->name('pages.index');
     Route::get('/pages/edit/{id}', [AdminController::class, 'editPageSection'])->name('pages.edit');
     Route::post('/pages/update/{id}', [AdminController::class, 'updatePageSection'])->name('pages.update');
-
     // Item (Product/Service) Management
     Route::get('/items', [AdminItemController::class, 'index'])->name('items.index');
     Route::get('/items/create', [AdminItemController::class, 'create'])->name('items.create');
@@ -93,24 +82,18 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/items/{id}/edit', [AdminItemController::class, 'edit'])->name('items.edit');
     Route::post('/items/{id}', [AdminItemController::class, 'update'])->name('items.update');
     Route::delete('/items/{id}', [AdminItemController::class, 'destroy'])->name('items.destroy');
+    Route::resource('testimonials', TestimonialController::class)->except(['show']);
 
-     Route::resource('testimonials', TestimonialController::class)->except(['show']);
 
-
-     Route::get('/homepage-sections', [HomepageController::class, 'index'])->name('homepage-sections.index');
-     Route::get('/homepage-sections/create', [HomepageController::class, 'create'])->name('homepage-sections.create');
-     Route::post('/homepage-sections', [HomepageController::class, 'store'])->name('homepage-sections.store');
-     Route::get('/homepage-sections/{id}/edit', [HomepageController::class, 'edit'])->name('homepage-sections.edit');
-     Route::put('/homepage-sections/{id}', [HomepageController::class, 'update'])->name('homepage-sections.update');
-     Route::delete('/homepage-sections/{id}', [HomepageController::class, 'destroy'])->name('homepage-sections.destroy');
-     
-     // Custom Action Routes
-     Route::post('/homepage-sections/reorder', [HomepageController::class, 'updateOrder'])->name('homepage-sections.reorder');
-     Route::post('/homepage-sections/{id}/visibility', [HomepageController::class, 'toggleVisibility'])->name('homepage-sections.visibility');
-     
-    
-
-    // Other Admin routes can be added here (e.g., for orders, users, categories)
+    Route::get('/homepage-sections', [HomepageController::class, 'index'])->name('homepage-sections.index');
+    Route::get('/homepage-sections/create', [HomepageController::class, 'create'])->name('homepage-sections.create');
+    Route::post('/homepage-sections', [HomepageController::class, 'store'])->name('homepage-sections.store');
+    Route::get('/homepage-sections/{id}/edit', [HomepageController::class, 'edit'])->name('homepage-sections.edit');
+    Route::put('/homepage-sections/{id}', [HomepageController::class, 'update'])->name('homepage-sections.update');
+    Route::delete('/homepage-sections/{id}', [HomepageController::class, 'destroy'])->name('homepage-sections.destroy');
+    // Custom Action Routes
+    Route::post('/homepage-sections/reorder', [HomepageController::class, 'updateOrder'])->name('homepage-sections.reorder');
+    Route::post('/homepage-sections/{id}/visibility', [HomepageController::class, 'toggleVisibility'])->name('homepage-sections.visibility');
 });
 
 // A fallback route to test DB connection if needed
@@ -128,10 +111,8 @@ Route::post('/contact-us', [ContactController::class, 'submit'])->name('contact.
 
 // Review Submission
 Route::post('/items/{itemId}/reviews', [ItemController::class, 'storeReview'])->name('items.reviews.store')->middleware('auth');
-
 // Newsletter Subscription
 Route::post('/newsletter-subscribe', [HomeController::class, 'subscribeNewsletter'])->name('newsletter.subscribe');
-
 
 Route::middleware(['auth'])->prefix('my-account')->name('account.')->group(function () {
     Route::get('/orders', [AccountController::class, 'orderHistory'])->name('orders');
@@ -144,7 +125,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
 // Frontend Static Page Display
 Route::get('/p/{slug}', [PageController::class, 'show'])->name('page.show');
-
 Route::post('/items/{itemId}/reviews', [ItemController::class, 'storeReview'])->name('items.reviews.store')->middleware('auth');
 
 // Customer Account Routes (add this entire group)
@@ -153,8 +133,6 @@ Route::middleware(['auth'])->prefix('my-account')->name('account.')->group(funct
     Route::post('/profile', [AccountController::class, 'updateProfile'])->name('profile.update');
     Route::get('/orders', [AccountController::class, 'orders'])->name('orders');
 });
-
-
 
 Route::get('/blog', [BlogController::class, 'index'])->name('blogs.index');
 Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blogs.show');
@@ -175,8 +153,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
      Route::post('/pages/update/{id}', [HomepageSectionController::class, 'update'])->name('pages.update'); // Note: Should ideally be PUT/PATCH
      Route::delete('/pages/{id}', [HomepageSectionController::class, 'destroy'])->name('pages.destroy');
      Route::post('/pages/order', [HomepageSectionController::class, 'order'])->name('apages.order');
- 
- 
 });
 
 
@@ -188,9 +164,6 @@ Route::get('forgot-password', [ForgotPasswordController::class, 'showLinkRequest
 Route::post('forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
 Route::get('reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
 Route::post('reset-password', [ForgotPasswordController::class, 'reset'])->name('password.update');
-
-
-
 Route::post('/verify-and-create-user', [AuthController::class, 'verifyAndCreateUser'])->name('register.verify');
 
 
