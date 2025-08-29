@@ -362,19 +362,8 @@ INSERT INTO `page_sections` (`page_slug`, `section_slug`, `layout_template`, `ti
 ('main', 'faq', 'faq-accordion', 'Common Questions', 'Everything you need to know.', NULL, NULL, '#ffffff', 1, 6);
 
 alter table page_sections add column image varchar(255) after bg_color;
-	
 
 
-
-
-
-
-
-
-
-<!-- 
- -->
- --
 CREATE TABLE `homepages` (
   `id` int(10) UNSIGNED NOT NULL,
   `name` varchar(255) NOT NULL,
