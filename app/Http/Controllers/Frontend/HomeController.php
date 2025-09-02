@@ -66,7 +66,6 @@ class HomeController extends Controller
 
     public function custom()
     {
-        
         $active_homepage = DB::selectOne('SELECT id FROM homepages WHERE is_active = ?', [1]);
         if (!$active_homepage) {
             return view('welcome-error', ['message' => 'No active homepage has been configured.']);

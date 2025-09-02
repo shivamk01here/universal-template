@@ -18,7 +18,6 @@ class PageController extends Controller
         if (!$page) {
             abort(404);
         }
-
         return view('frontend.page', compact('page'));
     }
 }

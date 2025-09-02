@@ -117,7 +117,6 @@ class CheckoutController extends Controller
                 'updated_at' => now(),
             ]);
 
-
             $orderItemsData = [];
             foreach ($cartItems as $item) {
                 $orderItemsData[] = [
@@ -132,8 +131,6 @@ class CheckoutController extends Controller
             DB::table('order_items')->insert($orderItemsData);
             DB::table('carts')->where('user_id', Auth::id())->delete();
             DB::commit();
-
-
             return redirect()->route('checkout.success');
 
         } catch (\Exception $e) {
