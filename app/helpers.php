@@ -4,7 +4,7 @@ if (!function_exists('getBackgroundStyle')) {
     /**
      * Generates a background style string from a content object.
      *
-     * @param object|null $content The content object with bg_image_url and bg_color properties.
+     * @param object|null 
      * @return string The CSS style string.
      */
     function getBackgroundStyle(?object $content): string

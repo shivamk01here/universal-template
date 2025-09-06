@@ -59,8 +59,6 @@ class HomeController extends Controller
     public function subscribeNewsletter(Request $request)
     {
         $request->validate(['email' => 'required|email']);
-        // Here you would add the logic to save the email to a database table or a third-party service.
-        // For now, we'll just redirect back with a success message.
         return back()->with('success', 'Thank you for subscribing to our newsletter!');
     }
 
